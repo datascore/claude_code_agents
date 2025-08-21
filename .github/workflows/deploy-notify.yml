@@ -1,0 +1,61 @@
+name: Deploy Notifications
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '*.md'
+      - 'sync*.py'
+      - 'sync*.sh'
+
+jobs:
+  notify-updates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v39
+        with:
+          files: |
+            *.md
+            sync*.py
+            sync*.sh
+      
+      - name: Create deployment summary
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          echo "## 🚀 Agent Updates Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Changed Files:" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr ' ' '\n' | while read file; do
+            echo "- $file" >> $GITHUB_STEP_SUMMARY
+          done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Deployment Instructions:" >> $GITHUB_STEP_SUMMARY
+          echo "Other machines will automatically sync within the next hour, or run:" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo 'cd ~/agents && git pull origin main' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+      
+      # Optional: Send webhook notification
+      # - name: Send update notification
+      #   if: steps.changed-files.outputs.any_changed == 'true'
+      #   run: |
+      #     curl -X POST https://your-webhook-url.com/notify \
+      #       -H "Content-Type: application/json" \
+      #       -d '{"text":"Agent files updated. Run sync to get latest changes."}'
+      
+      # Optional: Trigger remote server update via SSH
+      # - name: Deploy to servers
+      #   if: steps.changed-files.outputs.any_changed == 'true'
+      #   uses: appleboy/ssh-action@v0.1.5
+      #   with:
+      #     host: ${{ secrets.SERVER_HOST }}
+      #     username: ${{ secrets.SERVER_USER }}
+      #     key: ${{ secrets.SERVER_SSH_KEY }}
+      #     script: |
+      #       cd ~/agents
+      #       git pull origin main
