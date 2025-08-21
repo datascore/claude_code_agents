@@ -1,6 +1,8 @@
-# Claude Agent Prompts Repository
+# Claude Code Agents Repository
 
 A centralized repository for managing and synchronizing Claude/Anthropic agent prompts across multiple instances.
+
+**Repository**: https://github.com/datascore/claude_code_agents
 
 ## 📦 Repository Contents
 
@@ -28,37 +30,45 @@ This repository contains specialized agent prompts for various domains:
 
 ## 🚀 Quick Start
 
-### Initial Setup
+### Getting the Agents on a New Machine
 
-1. **Create a GitHub repository** for your agents:
-   - Go to https://github.com/new
-   - Name it something like `claude-agent-prompts`
-   - Make it private if these prompts are proprietary
-   - Don't initialize with README (we already have one)
-
-2. **Set up your local repository**:
+#### Option 1: Clone with Git (Recommended)
 ```bash
-cd /Users/datascore/agents
+# Using HTTPS
+git clone https://github.com/datascore/claude_code_agents.git ~/agents
 
-# Add your GitHub repository as remote
-git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+# OR using SSH (if you have SSH keys set up)
+git clone git@github.com:datascore/claude_code_agents.git ~/agents
 
-# Add all files
-git add .
-
-# Create initial commit
-git commit -m "Initial commit of Claude agent prompts"
-
-# Push to GitHub
-git branch -M main
-git push -u origin main
+cd ~/agents
 ```
 
-3. **Set environment variable** for easy syncing:
+#### Option 2: Using Sync Script
 ```bash
-# Add to your ~/.zshrc or ~/.bashrc
-export AGENT_REPO_URL="https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git"
+# Download the sync script
+curl -O https://raw.githubusercontent.com/datascore/claude_code_agents/main/sync-agents.sh
+chmod +x sync-agents.sh
+
+# Set environment variables
+export AGENT_REPO_URL='https://github.com/datascore/claude_code_agents.git'
 export AGENTS_DIR="$HOME/agents"
+
+# Run initial sync
+./sync-agents.sh --sync
+```
+
+### Keeping Your Local Copy Updated
+
+```bash
+# Manual update
+cd ~/agents
+git pull origin main
+
+# OR use the sync script
+./sync-agents.sh --sync
+
+# Set up automatic hourly updates (macOS)
+./sync-agents.sh --auto
 ```
 
 ## 🔄 Synchronization Methods
@@ -196,6 +206,17 @@ agents/
 ├── sync-agents.sh              # Bash sync script
 ├── sync_agents.py              # Python sync module
 ├── .gitignore                  # Git ignore rules
+├── .github/                    # GitHub configuration
+│   ├── workflows/              # GitHub Actions workflows
+│   │   ├── pr-validation.yml   # PR validation and checks
+│   │   ├── automated-review.yml # Automated code review
+│   │   ├── pr-metrics.yml      # PR metrics tracking
+│   │   └── deploy-notify.yml   # Deployment notifications
+│   ├── ISSUE_TEMPLATE/         # Issue templates
+│   │   ├── bug_report.md       # Bug report template
+│   │   └── feature_request.md  # Feature request template
+│   ├── pull_request_template.md # PR template
+│   └── CODEOWNERS              # Code ownership rules
 ├── .git/                       # Git repository
 ├── .backups/                   # Local backups (git-ignored)
 ├── .sync.log                   # Sync history (git-ignored)
@@ -278,10 +299,55 @@ git push origin main
 
 ## 🤝 Contributing
 
-1. Keep prompts well-structured and documented
-2. Follow the existing format for new agents
-3. Test thoroughly before pushing
-4. Update this README when adding new features
+### Pull Request Process
+
+1. **Create a feature branch**:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+2. **Make your changes** and commit:
+   ```bash
+   git add .
+   git commit -m "Description of changes"
+   ```
+
+3. **Push to GitHub**:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+4. **Create a Pull Request**:
+   - Go to https://github.com/datascore/claude_code_agents
+   - Click "New pull request"
+   - Select your branch
+   - Fill out the PR template
+   - Submit for review
+
+### PR Guidelines
+
+- Link related issues in PR description
+- Keep PRs focused and under 500 lines
+- Ensure all checklist items are addressed
+- Wait for automated checks to pass
+- Address review feedback promptly
+
+### GitHub Actions & Automation
+
+This repository includes automated workflows:
+
+- **PR Validation**: Automatically checks PR size, linked issues, and template compliance
+- **Automated Review**: Runs Black formatting checks and spell checking
+- **PR Metrics**: Tracks metrics and generates weekly reports
+- **Auto-labeling**: PRs are automatically labeled based on content
+
+### Code Standards
+
+1. Python code must be formatted with Black
+2. Keep prompts well-structured and documented
+3. Follow the existing format for new agents
+4. Test thoroughly before pushing
+5. Update this README when adding new features
 
 ## 📄 License
 
@@ -289,6 +355,6 @@ git push origin main
 
 ---
 
-**Last Updated**: Auto-generated on sync
-**Maintainer**: [Your name/team]
-**Contact**: [Your contact info]
+**Repository**: https://github.com/datascore/claude_code_agents  
+**Maintainer**: datascore  
+**Last Updated**: 2025-01-21
