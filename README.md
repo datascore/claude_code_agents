@@ -223,11 +223,36 @@ agents/
 └── *.md                        # Agent prompt files
 ```
 
-## 🔐 Security Considerations
+## 🔐 Security & Access Control
 
-1. **Private Repository**: Keep your repository private if prompts contain proprietary information
-2. **Access Tokens**: Use personal access tokens instead of passwords for GitHub
-3. **Environment Variables**: Don't commit sensitive data; use environment variables
+### Repository Access Model
+
+**This is a PUBLIC repository with restricted write access:**
+- ✅ **Everyone can**: View, clone, fork, and use the agents
+- ❌ **Only datascore can**: Push changes, merge PRs, modify branches
+- 📝 **Others can**: Submit pull requests for review
+
+### Branch Protection
+
+The `main` branch is protected:
+- Only `datascore` can push directly
+- Force pushes are disabled
+- Branch deletion is protected
+- All changes from others must go through pull requests
+
+### For Contributors
+
+If you want to suggest improvements:
+1. Fork the repository
+2. Make changes in your fork
+3. Submit a pull request
+4. Wait for review and approval
+
+### Security Considerations
+
+1. **Public Repository**: This repository is intentionally public for sharing
+2. **Access Tokens**: Contributors should use personal access tokens
+3. **Environment Variables**: Don't commit sensitive data
 4. **Backup Strategy**: Local backups are kept in `.backups/` (git-ignored)
 
 ## 🛠️ Troubleshooting
