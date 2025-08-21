@@ -1,0 +1,225 @@
+name: PR Metrics & Reporting
+
+on:
+  pull_request:
+    types: [closed]
+  schedule:
+    # Weekly metrics report - every Monday at 9 AM
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  pr-metrics:
+    if: github.event.pull_request.merged == true || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Calculate PR metrics (for merged PRs)
+        if: github.event_name == 'pull_request'
+        id: pr-metrics
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            
+            // Calculate time metrics
+            const createdAt = new Date(pr.created_at);
+            const mergedAt = new Date(pr.merged_at);
+            const timeToMerge = Math.round((mergedAt - createdAt) / (1000 * 60 * 60)); // hours
+            
+            // Get review data
+            const reviews = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number
+            });
+            
+            const firstReviewTime = reviews.data.length > 0 
+              ? new Date(reviews.data[0].submitted_at)
+              : null;
+            
+            const timeToFirstReview = firstReviewTime 
+              ? Math.round((firstReviewTime - createdAt) / (1000 * 60 * 60))
+              : null;
+            
+            // Count unique reviewers
+            const uniqueReviewers = [...new Set(reviews.data.map(r => r.user.login))];
+            
+            // Get comments count
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number
+            });
+            
+            const metrics = {
+              pr_number: pr.number,
+              title: pr.title,
+              author: pr.user.login,
+              lines_added: pr.additions,
+              lines_deleted: pr.deletions,
+              files_changed: pr.changed_files,
+              commits: pr.commits,
+              time_to_merge_hours: timeToMerge,
+              time_to_first_review_hours: timeToFirstReview,
+              number_of_reviewers: uniqueReviewers.length,
+              reviewers: uniqueReviewers.join(', '),
+              total_comments: comments.data.length,
+              labels: pr.labels.map(l => l.name).join(', ')
+            };
+            
+            console.log(JSON.stringify(metrics, null, 2));
+            
+            // Store metrics for weekly report
+            const fs = require('fs');
+            const metricsFile = '/tmp/pr_metrics.json';
+            let allMetrics = [];
+            
+            if (fs.existsSync(metricsFile)) {
+              allMetrics = JSON.parse(fs.readFileSync(metricsFile, 'utf8'));
+            }
+            
+            allMetrics.push(metrics);
+            fs.writeFileSync(metricsFile, JSON.stringify(allMetrics, null, 2));
+            
+            return metrics;
+      
+      - name: Post PR metrics comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const metrics = ${{ steps.pr-metrics.outputs.result }};
+            
+            const body = `## 📊 PR Metrics Report
+            
+            ### Summary
+            **PR #${metrics.pr_number}**: ${metrics.title}
+            **Author**: @${metrics.author}
+            **Merged**: ✅
+            
+            ### Statistics
+            - **Lines changed**: +${metrics.lines_added} / -${metrics.lines_deleted}
+            - **Files changed**: ${metrics.files_changed}
+            - **Commits**: ${metrics.commits}
+            
+            ### Time Metrics
+            - **Time to merge**: ${metrics.time_to_merge_hours} hours
+            - **Time to first review**: ${metrics.time_to_first_review_hours || 'N/A'} hours
+            
+            ### Review Activity
+            - **Number of reviewers**: ${metrics.number_of_reviewers}
+            - **Reviewers**: ${metrics.reviewers || 'None'}
+            - **Total comments**: ${metrics.total_comments}
+            
+            ### Labels
+            ${metrics.labels || 'No labels'}
+            
+            ---
+            *This metrics report helps us track and improve our PR process.*`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+      
+      - name: Generate weekly report
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Get PRs from last week
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              sort: 'updated',
+              direction: 'desc',
+              per_page: 100
+            });
+            
+            // Filter PRs merged in the last week
+            const mergedPRs = prs.filter(pr => {
+              if (!pr.merged_at) return false;
+              const mergedDate = new Date(pr.merged_at);
+              return mergedDate >= oneWeekAgo;
+            });
+            
+            if (mergedPRs.length === 0) {
+              console.log('No PRs merged in the last week');
+              return;
+            }
+            
+            // Calculate aggregate metrics
+            let totalTimeToMerge = 0;
+            let totalTimeToFirstReview = 0;
+            let totalLines = 0;
+            let reviewCount = 0;
+            
+            for (const pr of mergedPRs) {
+              const created = new Date(pr.created_at);
+              const merged = new Date(pr.merged_at);
+              totalTimeToMerge += (merged - created);
+              totalLines += (pr.additions + pr.deletions);
+              
+              // Get first review time
+              const reviews = await github.rest.pulls.listReviews({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number
+              });
+              
+              if (reviews.data.length > 0) {
+                const firstReview = new Date(reviews.data[0].submitted_at);
+                totalTimeToFirstReview += (firstReview - created);
+                reviewCount++;
+              }
+            }
+            
+            const avgTimeToMerge = Math.round(totalTimeToMerge / mergedPRs.length / (1000 * 60 * 60));
+            const avgTimeToFirstReview = reviewCount > 0 
+              ? Math.round(totalTimeToFirstReview / reviewCount / (1000 * 60 * 60))
+              : 0;
+            const avgLines = Math.round(totalLines / mergedPRs.length);
+            
+            // Create weekly report issue
+            const reportBody = `# 📊 Weekly PR Metrics Report
+            
+            **Period**: ${oneWeekAgo.toDateString()} - ${new Date().toDateString()}
+            
+            ## Summary
+            - **Total PRs merged**: ${mergedPRs.length}
+            - **Average time to merge**: ${avgTimeToMerge} hours
+            - **Average time to first review**: ${avgTimeToFirstReview} hours
+            - **Average PR size**: ${avgLines} lines
+            
+            ## Merged PRs
+            ${mergedPRs.map(pr => `- #${pr.number}: ${pr.title} by @${pr.user.login}`).join('\n')}
+            
+            ## Recommendations
+            ${avgTimeToMerge > 72 ? '⚠️ Consider reducing time to merge - current average exceeds 3 days\n' : ''}
+            ${avgTimeToFirstReview > 24 ? '⚠️ Consider improving initial review response time\n' : ''}
+            ${avgLines > 500 ? '⚠️ Consider encouraging smaller PRs for easier review\n' : ''}
+            
+            ---
+            *This report is automatically generated weekly to track PR metrics and identify areas for improvement.*`;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Weekly PR Metrics Report - ${new Date().toDateString()}`,
+              body: reportBody,
+              labels: ['metrics', 'automated']
+            });

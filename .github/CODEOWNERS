@@ -1,0 +1,33 @@
+# CODEOWNERS for Agents Repository
+# This file defines who is responsible for code review in different parts of the repository
+# Each line is a file pattern followed by one or more owners
+
+# Default owners for everything in the repo
+* @datascore
+
+# Agent-specific ownership
+/api-design-agent.md @datascore
+/asterisk-expert-agent.md @datascore
+/database-engineer-agent.md @datascore
+/devops-agent.md @datascore
+/gcp-expert-agent.md @datascore
+/go-agent.md @datascore
+/javascript-expert-agent.md @datascore
+/php-agent.md @datascore
+/pr-manager-agent.md @datascore
+/react-agent.md @datascore
+/vicidial-expert-agent.md @datascore
+/webrtc-expert-system.md @datascore
+
+# Scripts and automation
+/sync_agents.py @datascore
+/sync-agents.sh @datascore
+*.py @datascore
+*.sh @datascore
+
+# GitHub configuration
+/.github/ @datascore
+
+# Documentation
+*.md @datascore
+README.md @datascore

@@ -1,0 +1,250 @@
+name: PR Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  pull_request_review:
+    types: [submitted]
+  issue_comment:
+    types: [created]
+
+jobs:
+  validate-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Check PR size
+        id: pr-size
+        run: |
+          # Get PR stats
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          ADDITIONS=${{ github.event.pull_request.additions }}
+          DELETIONS=${{ github.event.pull_request.deletions }}
+          TOTAL=$((ADDITIONS + DELETIONS))
+          
+          echo "Total lines changed: $TOTAL"
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          
+          if [ $TOTAL -gt 500 ]; then
+            echo "::warning::Large PR detected ($TOTAL lines). Consider splitting into smaller PRs."
+            echo "large_pr=true" >> $GITHUB_OUTPUT
+          else
+            echo "large_pr=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Check linked issues
+        id: check-issues
+        if: github.event.action == 'opened' || github.event.action == 'edited'
+        run: |
+          # Extract issue numbers from PR description
+          PR_BODY="${{ github.event.pull_request.body }}"
+          
+          # Look for issue references
+          if echo "$PR_BODY" | grep -qE '(Closes|Fixes|Resolves|Addresses) #[0-9]+'; then
+            echo "✅ Linked issues found"
+            echo "has_issues=true" >> $GITHUB_OUTPUT
+          else
+            echo "::warning::No linked issues found. Please link related issues in the PR description."
+            echo "has_issues=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Check PR template compliance
+        run: |
+          PR_BODY="${{ github.event.pull_request.body }}"
+          
+          # Check if required sections are present
+          REQUIRED_SECTIONS=("## Summary" "## Type of Change" "## Changes Made" "## Testing" "## Checklist")
+          MISSING_SECTIONS=""
+          
+          for section in "${REQUIRED_SECTIONS[@]}"; do
+            if ! echo "$PR_BODY" | grep -q "$section"; then
+              MISSING_SECTIONS="$MISSING_SECTIONS\\n- $section"
+            fi
+          done
+          
+          if [ -n "$MISSING_SECTIONS" ]; then
+            echo "::warning::Missing PR template sections:$MISSING_SECTIONS"
+          fi
+      
+      - name: Validate agent files
+        if: contains(github.event.pull_request.labels.*.name, 'agent') || contains(github.event.pull_request.title, 'agent')
+        run: |
+          # Check if agent files follow naming convention
+          changed_files=$(git diff --name-only HEAD^ HEAD)
+          
+          for file in $changed_files; do
+            if [[ $file == *-agent.md ]] || [[ $file == *-expert*.md ]]; then
+              echo "✅ Agent file validated: $file"
+              
+              # Check file structure
+              if ! grep -q "## Role" "$file"; then
+                echo "::warning::Agent file $file missing '## Role' section"
+              fi
+              
+              if ! grep -q "## Core Expertise" "$file"; then
+                echo "::warning::Agent file $file missing '## Core Expertise' section"
+              fi
+            fi
+          done
+      
+      - name: Post PR summary comment
+        if: github.event.action == 'opened'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const prSize = '${{ steps.pr-size.outputs.total }}';
+            const hasIssues = '${{ steps.check-issues.outputs.has_issues }}' === 'true';
+            const isLargePR = '${{ steps.pr-size.outputs.large_pr }}' === 'true';
+            
+            let statusEmoji = '✅';
+            if (isLargePR || !hasIssues) {
+              statusEmoji = '⚠️';
+            }
+            
+            const body = `## ${statusEmoji} PR Validation Report
+            
+            ### 📊 PR Statistics
+            - **Total lines changed:** ${prSize}
+            - **Files changed:** ${{ github.event.pull_request.changed_files }}
+            - **Commits:** ${{ github.event.pull_request.commits }}
+            
+            ### ✅ Validation Checklist
+            - ${hasIssues ? '✅' : '❌'} Linked issues found
+            - ${!isLargePR ? '✅' : '⚠️'} PR size reasonable (${prSize} lines)
+            - ⏳ Review status pending
+            - ⏳ CI/CD checks pending
+            
+            ### 👥 Reviewers
+            Reviewers will be automatically assigned based on CODEOWNERS file.
+            
+            ### 📝 Next Steps
+            1. Ensure all checklist items in the PR description are addressed
+            2. Wait for automated checks to complete
+            3. Address any feedback from reviewers
+            
+            ---
+            *This comment was automatically generated by the PR validation workflow.*`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+      
+      - name: Auto-label PR
+        if: github.event.action == 'opened'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const title = context.payload.pull_request.title.toLowerCase();
+            const body = context.payload.pull_request.body.toLowerCase();
+            const labels = [];
+            
+            // Add labels based on PR content
+            if (title.includes('bug') || body.includes('bug')) {
+              labels.push('bug');
+            }
+            if (title.includes('feature') || body.includes('feature')) {
+              labels.push('enhancement');
+            }
+            if (title.includes('doc') || body.includes('documentation')) {
+              labels.push('documentation');
+            }
+            if (title.includes('agent') || body.includes('agent')) {
+              labels.push('agent');
+            }
+            if (title.includes('fix')) {
+              labels.push('bugfix');
+            }
+            
+            // Add size labels
+            const additions = context.payload.pull_request.additions;
+            const deletions = context.payload.pull_request.deletions;
+            const total = additions + deletions;
+            
+            if (total < 10) {
+              labels.push('size/XS');
+            } else if (total < 50) {
+              labels.push('size/S');
+            } else if (total < 200) {
+              labels.push('size/M');
+            } else if (total < 500) {
+              labels.push('size/L');
+            } else {
+              labels.push('size/XL');
+            }
+            
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: labels
+              });
+            }
+
+  track-review-comments:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request_review'
+    permissions:
+      pull-requests: write
+    
+    steps:
+      - name: Track review status
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const review = context.payload.review;
+            const pr = context.payload.pull_request;
+            
+            if (review.state === 'CHANGES_REQUESTED') {
+              // Add 'needs-work' label
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: ['needs-work']
+              });
+              
+              // Remove 'ready-for-review' label if exists
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  name: 'ready-for-review'
+                });
+              } catch (e) {
+                // Label might not exist, ignore
+              }
+            } else if (review.state === 'APPROVED') {
+              // Add 'approved' label
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: ['approved']
+              });
+              
+              // Remove 'needs-work' label if exists
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  name: 'needs-work'
+                });
+              } catch (e) {
+                // Label might not exist, ignore
+              }
+            }

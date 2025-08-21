@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Sync script logs and backups
+.sync.log
+.sync.stdout
+.sync.stderr
+.backups/
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+
+# Local configuration
+.env
+.env.local
+config.local.json
