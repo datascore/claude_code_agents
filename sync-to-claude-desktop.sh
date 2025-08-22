@@ -77,8 +77,27 @@ echo ""
 echo "📋 Syncing agents..."
 synced=0
 
-for agent in *.md; do
-    if [ -f "$agent" ] && [[ ! "$agent" =~ (README|CATALOG|SETUP|REMOTE_SETUP|DISCOVERY_WORKFLOW|claude-code-loader) ]]; then
+# List of actual agent files only
+AGENT_FILES=(
+    "api-design-agent.md"
+    "asterisk-expert-agent.md"
+    "database-engineer-agent.md"
+    "devops-agent.md"
+    "gcp-expert-agent.md"
+    "go-agent.md"
+    "javascript-expert-agent.md"
+    "php-agent.md"
+    "pr-manager-agent.md"
+    "project-comprehension-agent.md"
+    "qa-test-orchestrator.md"
+    "qa-testing-agent.md"
+    "react-agent.md"
+    "vicidial-expert-agent.md"
+    "webrtc-expert-system.md"
+)
+
+for agent in "${AGENT_FILES[@]}"; do
+    if [ -f "$agent" ]; then
         sync_agent "$agent"
         ((synced++))
     fi
