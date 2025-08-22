@@ -17,7 +17,7 @@ cd ~/agents
 
 That's it! The agents are now available in `~/.claude/agents/`
 
-## Available Agents (16 total)
+## Available Agents (15 unique agents, 16 files after sync)
 
 | Agent File | Claude Code Name | Expertise |
 |------------|-----------------|-----------|
