@@ -6,7 +6,7 @@ set -e
 
 # Configuration
 AGENTS_REPO_DIR="$HOME/agents"
-CLAUDE_AGENTS_DIR="$HOME/.config/claude/agents"  # Claude Code directory
+CLAUDE_AGENTS_DIR="$HOME/.claude/agents"  # Personal agents directory for Claude Code
 LOG_FILE="$HOME/.claude/agent-sync.log"
 SYNC_INTERVAL=300  # 5 minutes
 

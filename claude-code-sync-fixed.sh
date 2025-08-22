@@ -9,7 +9,7 @@ echo "=========================================="
 
 # Define directories
 SOURCE_DIR="$(pwd)"
-CLAUDE_CODE_DIR="$HOME/.config/claude/agents"  # Claude Code uses .config/claude, not .claude
+CLAUDE_CODE_DIR="$HOME/.claude/agents"  # Personal agents directory for Claude Code
 
 # Create directory if it doesn't exist
 mkdir -p "$CLAUDE_CODE_DIR"
@@ -341,7 +341,7 @@ echo ""
 echo "📝 PROMPT FOR CLAUDE CODE - Copy this:"
 echo "--------------------------------------------------------------------------------"
 cat << 'PROMPT'
-Review all agents in ~/.config/claude/agents/ and generate comprehensive 
+Review all agents in ~/.claude/agents/ and generate comprehensive 
 orchestration documentation for the project's claude.md file.
 
 Analyze each agent's YAML metadata and content to create:

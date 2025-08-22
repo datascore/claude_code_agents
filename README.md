@@ -23,7 +23,7 @@ cd ~/agents
 ./agent-service-control.sh install
 ```
 
-**That's it!** Agents are now available in `~/.config/claude/agents/` with proper YAML frontmatter.
+**That's it!** Agents are now available in `~/.claude/agents/` with proper YAML frontmatter.
 
 ## 📋 Available Agents
 
@@ -130,7 +130,7 @@ git pull origin main
 ## 📁 Technical Details
 
 ### Agent Location & Format
-Agents are synced to: `~/.config/claude/agents/`
+Agents are synced to: `~/.claude/agents/` (Personal agents directory)
 
 Each agent includes required YAML frontmatter:
 ```yaml
@@ -154,10 +154,10 @@ tools: ["*"]  # All agents have access to all tools
 ### Verify Installation
 ```bash
 # Check agents are synced
-ls -la ~/.config/claude/agents/
+ls -la ~/.claude/agents/
 
 # Verify YAML frontmatter
-head -6 ~/.config/claude/agents/go-specialist.md
+head -6 ~/.claude/agents/go-specialist.md
 
 # Check git hooks
 ls -la .git/hooks/post-*
@@ -182,7 +182,7 @@ ls -la .git/hooks/post-*
 
 #### Force Complete Resync
 ```bash
-rm -rf ~/.config/claude/agents/*
+rm -rf ~/.claude/agents/*
 ./claude-code-sync-fixed.sh
 ```
 
