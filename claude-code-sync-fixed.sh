@@ -50,8 +50,11 @@ ensure_claude_code_yaml() {
     local file=$1
     local temp_file="${file}.tmp"
     
-    # Extract agent name from filename
-    local agent_name=$(basename "$file" .md)
+    # Extract agent name from filename (remove .processing and .md if present)
+    local agent_name=$(basename "$file")
+    agent_name=${agent_name%.md.processing}  # Remove .md.processing suffix if present
+    agent_name=${agent_name%.processing}  # Remove .processing suffix if present
+    agent_name=${agent_name%.md}  # Remove .md suffix if present
     
     # Extract description from content
     local description=$(extract_description "$file")
