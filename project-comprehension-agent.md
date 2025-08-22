@@ -425,61 +425,136 @@ If issues occur:
 
 ## Dynamic Agent Discovery & Orchestration
 
-### Automated Agent Discovery Process
+### Agent Discovery & Orchestration
 
 ```python
-class DynamicAgentDiscovery:
+class HybridAgentDiscovery:
     """
-    Automatically discover and understand available agents
+    Discover and orchestrate both Claude Code built-in agents and custom agents
     """
     
     def __init__(self):
-        self.agents_dir = "./agents/"
-        self.available_agents = {}
+        self.custom_agents_dir = "~/.config/claude/agents/"
+        self.available_agents = {
+            'claude_builtin': {},
+            'custom': {}
+        }
         
-    def discover_agents(self):
+    def get_claude_builtin_agents(self):
         """
-        Scan agents directory and build capability map
+        Map Claude Code's built-in Task tool agents to their capabilities
+        """
+        return {
+            'general-purpose': {
+                'role': 'General task execution and analysis',
+                'best_for': ['analysis', 'planning', 'documentation']
+            },
+            'database-architect': {
+                'role': 'Database design and optimization',
+                'best_for': ['schema design', 'queries', 'migrations']
+            },
+            'devops-infrastructure-specialist': {
+                'role': 'Infrastructure and deployment',
+                'best_for': ['docker', 'kubernetes', 'ci/cd', 'monitoring']
+            },
+            'qa-test-orchestrator': {
+                'role': 'Testing strategy and automation',
+                'best_for': ['test planning', 'e2e testing', 'quality assurance']
+            },
+            'gcp-cloud-architect': {
+                'role': 'Google Cloud Platform architecture',
+                'best_for': ['gcp services', 'cloud migration', 'scaling']
+            },
+            'react-specialist': {
+                'role': 'React and frontend development',
+                'best_for': ['react', 'ui components', 'frontend']
+            },
+            'go-specialist': {
+                'role': 'Go language development',
+                'best_for': ['golang', 'microservices', 'backend']
+            },
+            'api-design-architect': {
+                'role': 'API design and architecture',
+                'best_for': ['rest', 'graphql', 'api design']
+            },
+            'code-review-auditor': {
+                'role': 'Code review and quality audit',
+                'best_for': ['code review', 'best practices', 'refactoring']
+            },
+            'pr-lifecycle-manager': {
+                'role': 'Pull request and Git workflow management',
+                'best_for': ['git', 'pull requests', 'branching']
+            }
+        }
+        
+    def discover_custom_agents(self):
+        """
+        Discover custom agents in ~/.config/claude/agents/
         """
         import os
         import re
+        from pathlib import Path
         
-        # Find all agent documentation files
-        agent_files = [
-            f for f in os.listdir(self.agents_dir)
-            if f.endswith('.md') and 
-            f not in ['README.md', 'AGENT_CATALOG.md', 'REMOTE_SETUP.md']
-        ]
+        agents_path = Path.home() / '.config' / 'claude' / 'agents'
+        custom_agents = {}
         
-        for agent_file in agent_files:
-            agent_name = agent_file.replace('.md', '')
-            content = self.read_agent_file(agent_file)
+        if agents_path.exists():
+            agent_files = [
+                f for f in agents_path.glob('*.md')
+                if f.name not in ['README.md', 'AGENT_CATALOG.md', 'REMOTE_SETUP.md']
+            ]
             
-            # Extract capabilities from documentation
-            self.available_agents[agent_name] = {
-                'role': self.extract_section(content, 'Role'),
-                'expertise': self.extract_section(content, 'Core Expertise'),
-                'capabilities': self.analyze_capabilities(content),
-                'best_for': self.determine_use_cases(content)
-            }
-            
+            for agent_file in agent_files:
+                agent_name = agent_file.stem
+                # Map our custom agents to their expertise
+                custom_agents[agent_name] = {
+                    'role': f'Custom specialist: {agent_name}',
+                    'location': str(agent_file),
+                    'type': 'custom'
+                }
+                
+        return custom_agents
+    
+    def discover_all_agents(self):
+        """
+        Get both Claude built-in and custom agents
+        """
+        self.available_agents['claude_builtin'] = self.get_claude_builtin_agents()
+        self.available_agents['custom'] = self.discover_custom_agents()
         return self.available_agents
     
     def match_agents_to_sdd(self, sdd_content):
         """
-        Match SDD requirements to available agent capabilities
+        Match SDD requirements to both Claude built-in and custom agents
         """
+        all_agents = self.discover_all_agents()
         required_expertise = self.analyze_sdd_requirements(sdd_content)
-        selected_agents = {}
         
-        for requirement, details in required_expertise.items():
-            best_agent = self.find_best_agent(requirement, details)
-            if best_agent:
-                selected_agents[requirement] = {
-                    'agent': best_agent,
-                    'reason': f"Best match for {requirement}",
-                    'confidence': self.calculate_match_confidence(best_agent, details)
-                }
+        selected_agents = {
+            'claude_task_agents': [],  # For Claude Code Task tool
+            'custom_agents': []         # Our custom agents
+        }
+        
+        # Map requirements to Claude built-in agents
+        for req, details in required_expertise.items():
+            # Check Claude built-in agents first
+            for agent_name, agent_info in all_agents['claude_builtin'].items():
+                if any(keyword in req.lower() for keyword in agent_info['best_for']):
+                    selected_agents['claude_task_agents'].append({
+                        'agent': agent_name,
+                        'reason': agent_info['role'],
+                        'use_for': req
+                    })
+                    break
+            
+            # Also check custom agents
+            for agent_name in all_agents['custom']:
+                if req.lower() in agent_name or agent_name in req.lower():
+                    selected_agents['custom_agents'].append({
+                        'agent': agent_name,
+                        'location': all_agents['custom'][agent_name]['location'],
+                        'use_for': req
+                    })
                 
         return selected_agents
 ```
