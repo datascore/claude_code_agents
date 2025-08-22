@@ -153,20 +153,32 @@ get_claude_code_name() {
 # Function to check if file is an agent
 is_agent_file() {
     local file=$1
+    local basename=$(basename "$file")
     
-    # Skip non-agent files
-    if [[ "$(basename "$file")" == "README.md" ]] || \
-       [[ "$(basename "$file")" == "AGENT_CATALOG.md" ]] || \
-       [[ "$(basename "$file")" == *"orchestration"* ]] || \
-       [[ "$(basename "$file")" == "claude.md" ]] || \
-       [[ "$(basename "$file")" == *"report"* ]] || \
-       [[ "$(basename "$file")" == *"test"* ]] || \
-       [[ "$(basename "$file")" == *"backup"* ]] || \
-       [[ "$(basename "$file")" == *"temp"* ]] || \
-       [[ "$(basename "$file")" == "."* ]] || \
-       [[ "$(basename "$file")" == *".json" ]] || \
-       [[ "$(basename "$file")" == *".sh" ]] || \
-       [[ "$(basename "$file")" == *".log" ]]; then
+    # Skip non-agent files - comprehensive list
+    # Special case: qa-test-orchestrator IS an agent despite having 'test' in name
+    if [[ "$basename" == "qa-test-orchestrator.md" ]]; then
+        # This IS an agent, don't skip it
+        :
+    elif [[ "$basename" == "README.md" ]] || \
+       [[ "$basename" == "AGENT_CATALOG.md" ]] || \
+       [[ "$basename" == "DISCOVERY_WORKFLOW.md" ]] || \
+       [[ "$basename" == "REMOTE_SETUP.md" ]] || \
+       [[ "$basename" == *"orchestration-instructions"* ]] || \
+       [[ "$basename" == "claude.md" ]] || \
+       [[ "$basename" == *"report"* ]] || \
+       [[ "$basename" == *"test"* ]] || \
+       [[ "$basename" == *"backup"* ]] || \
+       [[ "$basename" == *"temp"* ]] || \
+       [[ "$basename" == *"loader"* ]] || \
+       [[ "$basename" == *"mapper"* ]] || \
+       [[ "$basename" == *"WORKFLOW"* ]] || \
+       [[ "$basename" == *"SETUP"* ]] || \
+       [[ "$basename" == "."* ]] || \
+       [[ "$basename" == *".json" ]] || \
+       [[ "$basename" == *".sh" ]] || \
+       [[ "$basename" == *".log" ]] || \
+       [[ "$basename" == *".plist" ]]; then
         return 1
     fi
     
