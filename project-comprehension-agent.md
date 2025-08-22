@@ -425,100 +425,93 @@ If issues occur:
 
 ## Dynamic Agent Discovery & Orchestration
 
-### Claude Desktop Agent Discovery & Orchestration
+### Claude Code Agent Discovery & Orchestration
 
 ```python
-class ClaudeDesktopAgentDiscovery:
+class ClaudeCodeAgentDiscovery:
     """
-    Discover and orchestrate Claude Desktop agents from /agents command
+    Dynamically discover and orchestrate Claude Code agents
     """
     
     def __init__(self):
         self.agent_locations = {
-            'user_agents': '~/.claude/agents/',      # User-level agents (global)
-            'project_agents': '.claude/agents/',     # Project-specific agents
-            'builtin_agents': 'always available'     # Claude's built-in agents
+            'claude_code': '~/.config/claude/agents/',  # Claude Code CLI agents
+            'project': '.claude/agents/',               # Project-specific agents
+            'builtin': 'always available'               # Claude's built-in agents
         }
         self.available_agents = {
-            'user': {},
+            'claude_code': {},
             'project': {},
             'builtin': {}
         }
         
-    def get_user_agents(self):
+    def get_claude_code_agents(self):
         """
-        User agents from ~/.claude/agents/ - these are YOUR custom agents
-        Available globally across all projects
+        Dynamically discover Claude Code CLI agents from ~/.config/claude/agents/
         """
-        # These are the agents you've synced from your GitHub repo
-        return {
-            'database-architect': {
-                'model': 'opus',
-                'role': 'Database design, optimization, migrations',
-                'location': '~/.claude/agents/database-architect.md'
-            },
-            'devops-infrastructure-specialist': {
-                'model': 'sonnet',
-                'role': 'Infrastructure, Docker, Kubernetes, CI/CD',
-                'location': '~/.claude/agents/devops-infrastructure-specialist.md'
-            },
-            'qa-test-orchestrator': {
-                'model': 'sonnet',
-                'role': 'Test planning, automation, quality assurance',
-                'location': '~/.claude/agents/qa-test-orchestrator.md'
-            },
-            'gcp-cloud-architect': {
-                'model': 'sonnet',
-                'role': 'Google Cloud Platform services and architecture',
-                'location': '~/.claude/agents/gcp-cloud-architect.md'
-            },
-            'react-specialist': {
-                'model': 'sonnet',
-                'role': 'React, TypeScript, frontend development',
-                'location': '~/.claude/agents/react-specialist.md'
-            },
-            'go-specialist': {
-                'model': 'sonnet',
-                'role': 'Go language, microservices, backend systems',
-                'location': '~/.claude/agents/go-specialist.md'
-            },
-            'code-review-auditor': {
-                'model': 'sonnet',
-                'role': 'Code review, best practices, security audit',
-                'location': '~/.claude/agents/code-review-auditor.md'
-            },
-            'api-design-architect': {
-                'model': 'sonnet',
-                'role': 'REST, GraphQL, API design patterns',
-                'location': '~/.claude/agents/api-design-architect.md'
-            },
-            'code-quality-auditor': {
-                'model': 'sonnet',
-                'role': 'Code quality, testing, maintainability',
-                'location': '~/.claude/agents/code-quality-auditor.md'
-            },
-            # Additional custom agents from your repo
-            'vicidial-expert-agent': {
-                'model': 'sonnet',
-                'role': 'ViciDial configuration and management',
-                'location': '~/.claude/agents/vicidial-expert-agent.md'
-            },
-            'asterisk-expert-agent': {
-                'model': 'sonnet',
-                'role': 'Asterisk PBX and telephony',
-                'location': '~/.claude/agents/asterisk-expert-agent.md'
-            },
-            'webrtc-expert-system': {
-                'model': 'sonnet',
-                'role': 'WebRTC implementation and troubleshooting',
-                'location': '~/.claude/agents/webrtc-expert-system.md'
-            },
-            'project-comprehension-agent': {
-                'model': 'opus',
-                'role': 'Technical architecture and SDD creation',
-                'location': '~/.claude/agents/project-comprehension-agent.md'
+        import os
+        from pathlib import Path
+        
+        agents = {}
+        agents_path = Path.home() / '.config' / 'claude' / 'agents'
+        
+        if not agents_path.exists():
+            return agents
+        
+        # Scan for all .md files in agents directory
+        for agent_file in agents_path.glob('*.md'):
+            agent_name = agent_file.stem
+            
+            # Skip system files
+            if agent_name in ['manifest', 'CATALOG', 'README', 'SETUP', 'DISCOVERY_WORKFLOW', 'claude-code-loader']:
+                continue
+            
+            # Extract role from agent file
+            role = self._extract_role_from_file(agent_file)
+            
+            # Determine model based on agent type
+            model = 'opus' if any(keyword in agent_name.lower() 
+                                for keyword in ['architect', 'comprehension']) else 'sonnet'
+            
+            agents[agent_name] = {
+                'model': model,
+                'role': role,
+                'location': str(agent_file)
             }
-        }
+        
+        return agents
+    
+    def _extract_role_from_file(self, agent_file):
+        """
+        Extract role description from agent file by reading the ## Role section
+        """
+        try:
+            with open(agent_file, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+            
+            # Look for ## Role section
+            role_section_start = -1
+            for i, line in enumerate(lines):
+                if line.strip().startswith('## Role'):
+                    role_section_start = i
+                    break
+            
+            if role_section_start == -1:
+                # Fallback: use agent name
+                return f"Specialized agent for {agent_file.stem.replace('-', ' ')}"
+            
+            # Extract first meaningful line after ## Role
+            for i in range(role_section_start + 1, min(len(lines), role_section_start + 10)):
+                line = lines[i].strip()
+                if line and not line.startswith('#') and not line.startswith('You are'):
+                    # Clean up the role description
+                    role = line.replace('You are a ', '').replace('You are an ', '')
+                    return role[:100] + '...' if len(role) > 100 else role
+            
+            return f"Specialized agent for {agent_file.stem.replace('-', ' ')}"
+            
+        except Exception:
+            return f"Specialized agent for {agent_file.stem.replace('-', ' ')}"
     
     def get_project_agents(self, project_path=None):
         """
@@ -538,36 +531,45 @@ class ClaudeDesktopAgentDiscovery:
     def get_builtin_agents(self):
         """
         Claude's built-in agents - always available
+        These are known from Claude Code Task tool error messages
         """
-        return {
-            'general-purpose': {
+        known_builtins = [
+            'general-purpose',
+            'statusline-setup',
+            'output-style-setup',
+            'code-review-auditor',
+            'pr-lifecycle-manager',
+            'code-quality-auditor'
+        ]
+        
+        builtin_roles = {
+            'general-purpose': 'General task execution and analysis',
+            'statusline-setup': 'Configure status line display',
+            'output-style-setup': 'Configure output formatting',
+            'code-review-auditor': 'Code review, best practices, security audit',
+            'pr-lifecycle-manager': 'Pull request validation and merge readiness assessment',
+            'code-quality-auditor': 'Code quality, testing, maintainability'
+        }
+        
+        agents = {}
+        for agent_name in known_builtins:
+            agents[agent_name] = {
                 'model': 'sonnet',
-                'role': 'General task execution and analysis',
-                'always_available': True
-            },
-            'statusline-setup': {
-                'model': 'sonnet',
-                'role': 'Configure status line display',
-                'always_available': True
-            },
-            'output-style-setup': {
-                'model': 'sonnet',
-                'role': 'Configure output formatting',
+                'role': builtin_roles.get(agent_name, f'Claude Code built-in {agent_name}'),
                 'always_available': True
             }
-        }
+        
+        return agents
         
     def discover_all_agents(self, project_path=None):
         """
-        Discover all available agents from Claude Desktop's /agents command
+        Discover all available agents dynamically
         """
         import os
         from pathlib import Path
         
-        # 1. User agents from ~/.claude/agents/
-        user_agents_path = Path.home() / '.claude' / 'agents'
-        if user_agents_path.exists():
-            self.available_agents['user'] = self.get_user_agents()
+        # 1. Claude Code agents from ~/.config/claude/agents/
+        self.available_agents['claude_code'] = self.get_claude_code_agents()
         
         # 2. Project agents from .claude/agents/ in project root
         if project_path:
@@ -580,18 +582,69 @@ class ClaudeDesktopAgentDiscovery:
         
         return self.available_agents
     
+    def get_agent_statistics(self):
+        """
+        Get statistics about available agents
+        """
+        all_agents = self.discover_all_agents()
+        
+        stats = {
+            'total_agents': 0,
+            'claude_code_agents': len(all_agents.get('claude_code', {})),
+            'project_agents': len(all_agents.get('project', {})),
+            'builtin_agents': len(all_agents.get('builtin', {})),
+            'by_category': {}
+        }
+        
+        stats['total_agents'] = (
+            stats['claude_code_agents'] + 
+            stats['project_agents'] + 
+            stats['builtin_agents']
+        )
+        
+        # Categorize agents by type
+        categories = {
+            'architects': [],
+            'specialists': [],
+            'auditors': [],
+            'orchestrators': [],
+            'experts': [],
+            'managers': [],
+            'general': []
+        }
+        
+        # Categorize Claude Code agents
+        for name, info in all_agents.get('claude_code', {}).items():
+            if 'architect' in name:
+                categories['architects'].append(name)
+            elif 'specialist' in name:
+                categories['specialists'].append(name)
+            elif 'auditor' in name:
+                categories['auditors'].append(name)
+            elif 'orchestrator' in name:
+                categories['orchestrators'].append(name)
+            elif 'expert' in name:
+                categories['experts'].append(name)
+            elif 'manager' in name:
+                categories['managers'].append(name)
+            else:
+                categories['general'].append(name)
+        
+        stats['by_category'] = categories
+        return stats
+    
     def select_agent_for_task(self, task_description):
         """
         Select the best agent for a given task from available agents
         """
         task_lower = task_description.lower()
         
-        # Check user agents first (most specialized)
-        for agent_name, agent_info in self.available_agents.get('user', {}).items():
+        # Check Claude Code agents first (most specialized)
+        for agent_name, agent_info in self.available_agents.get('claude_code', {}).items():
             if any(keyword in task_lower for keyword in agent_name.split('-')):
                 return {
                     'agent': agent_name,
-                    'type': 'user',
+                    'type': 'claude_code',
                     'reason': agent_info['role']
                 }
         
