@@ -19,11 +19,49 @@ REPO_AGENTS_DIR="$(pwd)"
 # Ensure directories exist
 mkdir -p "$CLAUDE_AGENTS_DIR"
 
+# 2. Function to add YAML frontmatter if missing
+add_yaml_frontmatter() {
+    local file=$1
+    local agent_name=$(basename "$file" .md)
+    
+    # Check if already has frontmatter
+    if head -n 1 "$file" 2>/dev/null | grep -q "^---$"; then
+        return 0  # Already has frontmatter
+    fi
+    
+    # Extract description from Role section
+    local desc=$(grep -A2 "## Role" "$file" 2>/dev/null | tail -n 1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' || echo "Specialist agent")
+    [ -z "$desc" ] && desc="Specialist agent for Claude Code"
+    desc="${desc:0:100}"  # Truncate to 100 chars
+    
+    # Create temp file with frontmatter
+    local temp_file="${file}.tmp"
+    cat > "$temp_file" << EOF
+---
+name: "$agent_name"
+description: "$desc"
+version: "1.0"
+tools: ["*"]
+---
+
+EOF
+    cat "$file" >> "$temp_file"
+    mv "$temp_file" "$file"
+    return 1  # Indicates file was modified
+}
+
 # 2. Validate agent format for Claude Code compatibility
 validate_agent_format() {
     local agent_file=$1
     local agent_name=$(basename "$agent_file")
     local valid=true
+    local modified=false
+    
+    # Add YAML frontmatter if missing
+    if add_yaml_frontmatter "$agent_file"; then
+        echo -e "${YELLOW}➕ Added YAML frontmatter to $agent_name${NC}"
+        modified=true
+    fi
     
     # Check for required sections
     if ! grep -q "## Role" "$agent_file"; then
@@ -37,7 +75,11 @@ validate_agent_format() {
     fi
     
     if $valid; then
-        echo -e "${GREEN}✓ $agent_name is Claude Code compatible${NC}"
+        if $modified; then
+            echo -e "${GREEN}✓ $agent_name is now Claude Code compatible${NC}"
+        else
+            echo -e "${GREEN}✓ $agent_name is Claude Code compatible${NC}"
+        fi
         return 0
     else
         return 1
