@@ -17,34 +17,33 @@ cd ~/agents
 
 That's it! The agents are now available in `~/.claude/agents/`
 
-## Available Agents (15 unique agents, 16 files after sync)
+## Available Agents (15 agents)
 
-| Agent File | Claude Code Name | Expertise |
-|------------|-----------------|-----------|
-| api-design-agent | api-design-architect | REST, GraphQL, API design |
-| asterisk-expert-agent | asterisk-specialist | Asterisk telephony, VoIP |
-| database-engineer-agent | database-architect | Database design, SQL/NoSQL |
-| devops-agent | devops-infrastructure-specialist | CI/CD, Docker, Kubernetes |
-| gcp-expert-agent | gcp-cloud-architect | Google Cloud Platform |
-| go-agent | go-specialist | Go programming language |
-| javascript-expert-agent | javascript-specialist | JavaScript, Node.js |
-| php-agent | php-specialist | PHP development |
-| pr-manager-agent | pr-lifecycle-manager | Pull requests, code review |
-| project-comprehension-agent | project-comprehension-specialist | Codebase analysis |
-| qa-test-orchestrator | qa-test-orchestrator | Test automation, QA |
-| qa-testing-agent | code-quality-auditor | Code quality, testing |
-| qa-testing-agent | code-review-auditor | Code review (alias) |
-| react-agent | react-specialist | React, frontend |
-| vicidial-expert-agent | vicidial-specialist | ViciDial call center |
-| webrtc-expert-system | webrtc-expert-system | WebRTC, real-time comm |
+| Agent File | Expertise |
+|------------|------------|
+| api-design-agent.md | REST, GraphQL, API design |
+| asterisk-expert-agent.md | Asterisk telephony, VoIP |
+| database-engineer-agent.md | Database design, SQL/NoSQL |
+| devops-agent.md | CI/CD, Docker, Kubernetes |
+| gcp-expert-agent.md | Google Cloud Platform |
+| go-agent.md | Go programming language |
+| javascript-expert-agent.md | JavaScript, Node.js |
+| php-agent.md | PHP development |
+| pr-manager-agent.md | Pull requests, code review |
+| project-comprehension-agent.md | Codebase analysis |
+| qa-test-orchestrator.md | Test automation, QA |
+| qa-testing-agent.md | Code quality, testing |
+| react-agent.md | React, frontend |
+| vicidial-expert-agent.md | ViciDial call center |
+| webrtc-expert-system.md | WebRTC, real-time comm |
 
 ## Using Agents in Claude Code
 
 ```python
 # In Claude Code, use the Task tool with the agent name:
-Task(subagent_type: 'go-specialist', task: 'Review this Go code')
-Task(subagent_type: 'database-architect', task: 'Optimize this query')
-Task(subagent_type: 'react-specialist', task: 'Create a React component')
+Task(subagent_type: 'go-agent', task: 'Review this Go code')
+Task(subagent_type: 'database-engineer-agent', task: 'Optimize this query')
+Task(subagent_type: 'react-agent', task: 'Create a React component')
 ```
 
 ## Updating Agents
@@ -62,13 +61,13 @@ If the sync script hangs, you can manually copy agents:
 ```bash
 # Manual copy example (for one agent)
 mkdir -p ~/.claude/agents
-cp go-agent.md ~/.claude/agents/go-specialist.md
+cp go-agent.md ~/.claude/agents/go-agent.md
 ```
 
 Then manually add YAML frontmatter to the top of each file:
 ```yaml
 ---
-name: "go-specialist"
+name: "go-agent"
 description: "Go programming specialist"
 version: "1.0"
 tools: ["*"]

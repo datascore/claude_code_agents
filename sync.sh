@@ -1,6 +1,6 @@
 #!/bin/bash
-# Ultra-simple sync script - just copy files with YAML headers
-# No complex processing that can hang
+# Ultra-simple sync script - copy files with YAML headers
+# KEEPS ORIGINAL FILENAMES - NO RENAMING
 
 echo "🔄 Syncing agents to ~/.claude/agents/"
 echo "======================================"
@@ -11,42 +11,44 @@ mkdir -p ~/.claude/agents
 # Clean old files
 rm -f ~/.claude/agents/*.md 2>/dev/null
 
-echo "📤 Copying agents..."
+echo "📤 Copying agents with original names..."
 
-# Simple function to add YAML and copy
+# Simple function to add YAML and copy - KEEPS ORIGINAL NAME
 sync_agent() {
-    if [ -f "$1" ]; then
+    local filename="$1"
+    local basename="${filename%.md}"
+    
+    if [ -f "$filename" ]; then
         (
             echo "---"
-            echo "name: \"$2\""
+            echo "name: \"$basename\""
             echo "description: \"Specialized AI assistant\""
             echo "version: \"1.0\""
             echo "tools: [\"*\"]"
             echo "---"
             echo ""
-            cat "$1"
-        ) > ~/.claude/agents/$2.md
-        echo "   ✓ $2"
+            cat "$filename"
+        ) > ~/.claude/agents/$filename
+        echo "   ✓ $basename"
     fi
 }
 
-# Copy each agent
-sync_agent api-design-agent.md api-design-architect
-sync_agent asterisk-expert-agent.md asterisk-specialist
-sync_agent database-engineer-agent.md database-architect
-sync_agent devops-agent.md devops-infrastructure-specialist
-sync_agent gcp-expert-agent.md gcp-cloud-architect
-sync_agent go-agent.md go-specialist
-sync_agent javascript-expert-agent.md javascript-specialist
-sync_agent php-agent.md php-specialist
-sync_agent pr-manager-agent.md pr-lifecycle-manager
-sync_agent project-comprehension-agent.md project-comprehension-specialist
-sync_agent qa-test-orchestrator.md qa-test-orchestrator
-sync_agent qa-testing-agent.md code-quality-auditor
-sync_agent qa-testing-agent.md code-review-auditor
-sync_agent react-agent.md react-specialist
-sync_agent vicidial-expert-agent.md vicidial-specialist
-sync_agent webrtc-expert-system.md webrtc-expert-system
+# Copy each agent WITH ORIGINAL NAMES
+sync_agent api-design-agent.md
+sync_agent asterisk-expert-agent.md
+sync_agent database-engineer-agent.md
+sync_agent devops-agent.md
+sync_agent gcp-expert-agent.md
+sync_agent go-agent.md
+sync_agent javascript-expert-agent.md
+sync_agent php-agent.md
+sync_agent pr-manager-agent.md
+sync_agent project-comprehension-agent.md
+sync_agent qa-test-orchestrator.md
+sync_agent qa-testing-agent.md
+sync_agent react-agent.md
+sync_agent vicidial-expert-agent.md
+sync_agent webrtc-expert-system.md
 
 echo ""
 echo "✅ Done! Agents synced to ~/.claude/agents/"
