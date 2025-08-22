@@ -2,6 +2,8 @@
 
 Specialized AI agents for Claude Code that provide expert assistance across various technical domains.
 
+⚠️ **IMPORTANT**: See `AGENTS_MANIFEST.md` for the definitive list of which files are agents vs documentation.
+
 ## Quick Setup
 
 ```bash

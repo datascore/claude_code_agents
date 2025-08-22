@@ -1,0 +1,20 @@
+# Files that Claude Code should NOT treat as agents
+# These are documentation or utility files
+
+README.md
+AGENTS_MANIFEST.md
+.claudeignore
+.gitignore
+sync.sh
+*.json
+*.yml
+*.yaml
+*.py
+*.sh
+.git/
+.github/
+
+# The following ARE agents and should NOT be ignored:
+# - All *-agent.md files
+# - qa-test-orchestrator.md
+# - webrtc-expert-system.md
