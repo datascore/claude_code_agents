@@ -716,9 +716,278 @@ When analyzing an SDD and creating a project plan, I will provide:
 - [ ] Monitoring in place
 ```
 
-## My Approach to Your SDD
+## Agent Orchestration Strategy
 
-When you provide me with an SDD, I will:
+### Available Specialist Agents
+
+Based on your discovery document, I will identify and orchestrate the appropriate specialist agents:
+
+```yaml
+agent_selection_matrix:
+  for_freeswitch_recording_project:
+    primary_agents:
+      - go-agent: "FreeSWITCH ESL client modifications, human-detection-v2 integration"
+      - database-engineer-agent: "Recording metadata storage, query optimization"
+      - devops-agent: "Storage configuration, service deployment, monitoring"
+      - api-design-agent: "REST API endpoints for recording management"
+      
+    supporting_agents:
+      - gcp-expert-agent: "Storage migration from GCS to local, cost optimization"
+      - react-agent: "UI for displaying recordings and transcripts"
+      - asterisk-expert-agent: "VoIP concepts, CDR best practices"
+      
+    quality_agents:
+      - qa-testing-agent: "Integration testing, recording verification"
+      - qa-test-orchestrator: "End-to-end test scenarios"
+      
+  for_general_project:
+    analyze_and_select:
+      - Review SDD technical stack
+      - Map required expertise areas
+      - Select primary implementation agents
+      - Identify supporting agents
+      - Include QA agents for validation
+```
+
+### Agent Orchestration Process
+
+```python
+class AgentOrchestrator:
+    def __init__(self, discovery_document):
+        self.discovery = discovery_document
+        self.agents_available = self.load_available_agents()
+        self.selected_agents = {}
+        self.task_assignments = {}
+        
+    def analyze_required_expertise(self):
+        """Analyze discovery to determine needed expertise"""
+        
+        expertise_needed = {
+            'languages': self.detect_languages(),
+            'frameworks': self.detect_frameworks(),
+            'infrastructure': self.detect_infrastructure(),
+            'databases': self.detect_databases(),
+            'integrations': self.detect_integrations(),
+            'ui_requirements': self.detect_ui_needs()
+        }
+        
+        return expertise_needed
+    
+    def select_agents(self, expertise_needed):
+        """Match expertise needs to available agents"""
+        
+        selected = {
+            'primary': [],
+            'supporting': [],
+            'quality': []
+        }
+        
+        # Example for FreeSWITCH project
+        if 'golang' in expertise_needed['languages']:
+            selected['primary'].append({
+                'agent': 'go-agent',
+                'tasks': [
+                    'Modify freeswitch-esl-client/esl.go',
+                    'Create FreeswitchProvider in human-detection-v2',
+                    'Implement WebSocket ESL communication'
+                ]
+            })
+            
+        if 'postgresql' in expertise_needed['databases']:
+            selected['primary'].append({
+                'agent': 'database-engineer-agent',
+                'tasks': [
+                    'Design recording metadata schema',
+                    'Create indexes for query optimization',
+                    'Implement data retention policies'
+                ]
+            })
+            
+        if 'react' in expertise_needed['frameworks']:
+            selected['supporting'].append({
+                'agent': 'react-agent',
+                'tasks': [
+                    'Update recordings UI component',
+                    'Add transcript display',
+                    'Implement audio player'
+                ]
+            })
+            
+        # Always include QA
+        selected['quality'].append({
+            'agent': 'qa-test-orchestrator',
+            'tasks': [
+                'Create integration tests',
+                'Verify recording triggers',
+                'Test transcription pipeline'
+            ]
+        })
+        
+        return selected
+    
+    def create_agent_coordination_plan(self):
+        """Define how agents work together"""
+        
+        coordination_plan = {
+            'phase_1_foundation': {
+                'lead': 'devops-agent',
+                'tasks': [
+                    'Setup storage infrastructure',
+                    'Configure mount points',
+                    'Prepare deployment environment'
+                ]
+            },
+            'phase_2_backend': {
+                'lead': 'go-agent',
+                'supporting': ['database-engineer-agent', 'api-design-agent'],
+                'tasks': [
+                    'Implement FreeSWITCH provider',
+                    'Modify ESL client',
+                    'Create API endpoints',
+                    'Setup database schema'
+                ],
+                'dependencies': ['phase_1_foundation']
+            },
+            'phase_3_integration': {
+                'lead': 'go-agent',
+                'supporting': ['asterisk-expert-agent'],
+                'tasks': [
+                    'Connect human detection to recording',
+                    'Implement beep detection trigger',
+                    'Test ESL commands'
+                ],
+                'dependencies': ['phase_2_backend']
+            },
+            'phase_4_frontend': {
+                'lead': 'react-agent',
+                'supporting': ['api-design-agent'],
+                'tasks': [
+                    'Update UI components',
+                    'Connect to new APIs',
+                    'Display transcripts'
+                ],
+                'dependencies': ['phase_2_backend']
+            },
+            'phase_5_testing': {
+                'lead': 'qa-test-orchestrator',
+                'supporting': ['qa-testing-agent'],
+                'tasks': [
+                    'End-to-end testing',
+                    'Performance validation',
+                    'User acceptance testing'
+                ],
+                'dependencies': ['phase_3_integration', 'phase_4_frontend']
+            }
+        }
+        
+        return coordination_plan
+```
+
+### Agent Task Assignment
+
+```markdown
+## Task Distribution by Agent
+
+### go-agent (Primary - Backend Implementation)
+**Expertise**: Go language, WebSocket, ESL protocol
+**Assigned Tasks**:
+1. Create `human-detection-v2/api-media-streams/internal/voice/freeswitch.go`
+   - Implement FreeswitchProvider struct
+   - Add startRecording() method
+   - WebSocket ESL integration
+   
+2. Modify `freeswitch-esl-client/esl.go`
+   - Remove hardcoded phone numbers
+   - Accept dynamic recording triggers
+   - Update recording path to /mnt/recordings/
+   
+3. Update `human-detection-v2/api-media-streams/internal/voice/actor.go`
+   - Add recording trigger on EventHumanDetected
+   - Add recording trigger on EventBeepDetected
+
+### database-engineer-agent (Primary - Data Layer)
+**Expertise**: PostgreSQL, BigQuery, data modeling
+**Assigned Tasks**:
+1. Design recording metadata schema
+2. Create transcription storage tables
+3. Implement efficient query patterns
+4. Setup data retention policies
+
+### devops-agent (Primary - Infrastructure)
+**Expertise**: Linux, Docker, GCP, monitoring
+**Assigned Tasks**:
+1. Configure attached storage mount
+2. Setup FreeSWITCH ESL service
+3. Implement monitoring and alerting
+4. Create deployment pipelines
+
+### api-design-agent (Supporting - API Layer)
+**Expertise**: REST, GraphQL, API design
+**Assigned Tasks**:
+1. Design recording management endpoints
+2. Create transcription API
+3. Define webhook callbacks
+
+### react-agent (Supporting - Frontend)
+**Expertise**: React, TypeScript, UI/UX
+**Assigned Tasks**:
+1. Update recordings page UI
+2. Add transcript display component
+3. Implement audio player
+
+### gcp-expert-agent (Supporting - Cloud Migration)
+**Expertise**: GCP services, cost optimization
+**Assigned Tasks**:
+1. Plan storage migration strategy
+2. Optimize costs by moving from GCS
+3. Configure backup strategies
+
+### qa-test-orchestrator (Quality - Testing)
+**Expertise**: Test orchestration, E2E testing
+**Assigned Tasks**:
+1. Create comprehensive test plan
+2. Implement integration tests
+3. Validate recording pipeline
+```
+
+### Agent Communication Protocol
+
+```yaml
+agent_communication:
+  handoff_protocol:
+    - from: project-comprehension-agent
+      to: [all selected agents]
+      deliverable: "Detailed task assignments with context"
+      
+    - from: devops-agent
+      to: go-agent
+      deliverable: "Infrastructure ready, mount points configured"
+      
+    - from: database-engineer-agent
+      to: go-agent
+      deliverable: "Schema ready, connection strings provided"
+      
+    - from: go-agent
+      to: api-design-agent
+      deliverable: "Core services implemented, interfaces defined"
+      
+    - from: api-design-agent
+      to: react-agent
+      deliverable: "API endpoints ready, documentation complete"
+      
+    - from: [all implementation agents]
+      to: qa-test-orchestrator
+      deliverable: "Features complete, ready for testing"
+      
+  status_updates:
+    frequency: "After each major task"
+    format: "Structured progress report"
+    escalation: "Blockers reported immediately"
+```
+
+## My Approach to Your Discovery Documents
+
+When you provide me with a discovery document (like your FreeSWITCH recording discovery), I will:
 
 1. **Deep Dive Analysis**
    - Read the entire document multiple times
