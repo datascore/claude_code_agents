@@ -5,17 +5,25 @@ A comprehensive collection of specialized AI agents for Claude Code's Task tool 
 
 **Repository**: https://github.com/datascore/claude_code_agents
 
-## 🚀 Quick Start
+## 🚀 Quick Start for Claude Code Servers
 
-### Installation
+### Complete Setup (Copy & Run)
 ```bash
-# Clone the repository
-git clone https://github.com/datascore/claude_code_agents.git
-cd claude_code_agents
+# 1. Clone the repository
+git clone https://github.com/datascore/claude_code_agents.git ~/agents
+cd ~/agents
 
-# Sync agents to Claude Code
-./sync-agents.sh
+# 2. Run the enhanced sync script (with proper YAML formatting)
+./claude-code-sync-fixed.sh
+
+# 3. Install git hooks for automatic syncing
+./setup-git-hooks.sh
+
+# 4. (Optional) Install background sync service for auto-updates
+./agent-service-control.sh install
 ```
+
+**That's it!** Agents are now available in `~/.config/claude/agents/` with proper YAML frontmatter.
 
 ## 📋 Available Agents
 
@@ -93,49 +101,89 @@ Task(subagent_type: 'code-review-auditor', task: 'Review this code for security 
 
 ## 🔄 Keeping Agents Updated
 
-### Manual Update
-```bash
-cd claude_code_agents
-git pull origin main
-./sync-agents.sh
-```
+### Three Ways to Stay Synchronized
 
-### Automatic Updates (Optional)
+#### 1. Automatic via Git Hooks (Recommended)
+Once installed, agents auto-sync when you:
+- Run `git pull` (post-merge hook)
+- Commit agent changes (post-commit hook)
+
+#### 2. Background Service (Set and Forget)
 ```bash
-# Install background sync service (macOS)
+# Install background sync service
 ./agent-service-control.sh install
 
-# Check service status
-./agent-service-control.sh status
-
-# View sync logs
-./agent-service-control.sh logs
+# Service automatically:
+# - Pulls from GitHub every 5 minutes
+# - Syncs agents with proper YAML format
+# - Logs activity to ~/.claude/agent-sync.log
 ```
 
-## 📁 Agent Location
+#### 3. Manual Update
+```bash
+cd ~/agents
+git pull origin main
+# Git hooks auto-sync, or manually run:
+./claude-code-sync-fixed.sh
+```
 
+## 📁 Technical Details
+
+### Agent Location & Format
 Agents are synced to: `~/.config/claude/agents/`
 
-The sync script automatically:
-- Maps agent names to Claude Code expected format
-- Copies agents to the correct location
-- Ensures compatibility with Task tool
+Each agent includes required YAML frontmatter:
+```yaml
+---
+name: "agent-name"
+description: "Agent description"
+version: "1.0"
+tools: ["*"]  # All agents have access to all tools
+---
+```
+
+### What the Sync Script Does
+- ✅ Auto-discovers all agent files
+- ✅ Maps names to Claude Code format (e.g., `go-agent` → `go-specialist`)
+- ✅ Adds proper YAML frontmatter
+- ✅ Validates format compliance
+- ✅ Generates agent-registry.json for tracking
 
 ## 🛠️ Troubleshooting
 
-### Agents Not Available in Task Tool
-1. Run `./sync-agents.sh` to ensure agents are synced
-2. Verify agents exist in `~/.config/claude/agents/`
-3. Check that agent names match Claude Code format (e.g., `go-specialist`, not `go-agent`)
-
-### Sync Issues
+### Verify Installation
 ```bash
-# Check current status
-ls ~/.config/claude/agents/
+# Check agents are synced
+ls -la ~/.config/claude/agents/
 
-# Force resync
+# Verify YAML frontmatter
+head -6 ~/.config/claude/agents/go-specialist.md
+
+# Check git hooks
+ls -la .git/hooks/post-*
+
+# Service status (if installed)
+./agent-service-control.sh status
+```
+
+### Common Issues
+
+#### Agents Not Available in Task Tool
+```bash
+# Run the enhanced sync script
+./claude-code-sync-fixed.sh
+```
+
+#### Git Hooks Not Working
+```bash
+# Reinstall hooks
+./setup-git-hooks.sh
+```
+
+#### Force Complete Resync
+```bash
 rm -rf ~/.config/claude/agents/*
-./sync-agents.sh
+./claude-code-sync-fixed.sh
 ```
 
 ## 🤝 Contributing
