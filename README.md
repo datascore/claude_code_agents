@@ -13,8 +13,8 @@ A comprehensive collection of specialized AI agents for Claude Code's Task tool 
 git clone https://github.com/datascore/claude_code_agents.git ~/agents
 cd ~/agents
 
-# 2. Run the enhanced sync script (with proper YAML formatting)
-./claude-code-sync-fixed.sh
+# 2. Run the sync script (with proper YAML formatting)
+./sync-agents-simple.sh
 
 # 3. Install git hooks for automatic syncing
 ./setup-git-hooks.sh
@@ -124,7 +124,7 @@ Once installed, agents auto-sync when you:
 cd ~/agents
 git pull origin main
 # Git hooks auto-sync, or manually run:
-./claude-code-sync-fixed.sh
+./sync-agents-simple.sh
 ```
 
 ## 📁 Technical Details
@@ -170,8 +170,8 @@ ls -la .git/hooks/post-*
 
 #### Agents Not Available in Task Tool
 ```bash
-# Run the enhanced sync script
-./claude-code-sync-fixed.sh
+# Run the sync script
+./sync-agents-simple.sh
 ```
 
 #### Git Hooks Not Working
@@ -183,7 +183,7 @@ ls -la .git/hooks/post-*
 #### Force Complete Resync
 ```bash
 rm -rf ~/.claude/agents/*
-./claude-code-sync-fixed.sh
+./sync-agents-simple.sh
 ```
 
 ## 🤝 Contributing

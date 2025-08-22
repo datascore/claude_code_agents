@@ -24,16 +24,12 @@ sync_agents() {
     if git pull origin main >> "$LOG_FILE" 2>&1; then
         log_message "Successfully pulled latest changes from GitHub"
         
-        # Run the fixed Claude Code sync
-        if [ -f "./claude-code-sync-fixed.sh" ]; then
-            ./claude-code-sync-fixed.sh >> "$LOG_FILE" 2>&1
-            log_message "Successfully synced agents to Claude Code with correct YAML format"
-        elif [ -f "./sync-agents.sh" ]; then
-            # Fallback to legacy script
-            ./sync-agents.sh >> "$LOG_FILE" 2>&1
-            log_message "Synced agents (legacy script)"
+        # Run the sync script
+        if [ -f "./sync-agents-simple.sh" ]; then
+            ./sync-agents-simple.sh >> "$LOG_FILE" 2>&1
+            log_message "Successfully synced agents to Claude Code"
         else
-            log_message "ERROR: No sync script found!"
+            log_message "ERROR: sync-agents-simple.sh not found!"
         fi
     else
         log_message "No changes from GitHub or error pulling"
