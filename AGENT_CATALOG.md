@@ -120,26 +120,32 @@ Instead of creating these specific agents, use the generic ones:
 
 ---
 
-## 🔨 Proposed Consolidation
+## ⚠️ Important: Agents Are Already Deployed
 
-### Rename for Clarity:
-- `gcp-expert-agent` → `cloud-infrastructure-agent`
-- `javascript-expert-agent` → `javascript-node-agent`
-- `qa-test-orchestrator` → `testing-orchestrator`
-- `pr-manager-agent` → `code-review-agent`
+**These agents are already in production use. DO NOT rename or remove them.**
 
-### Potential Merges:
-- Merge `qa-testing-agent` into `testing-orchestrator`
-- Merge `api-design-agent` into language agents (each can handle API design)
+### How to Use Existing Agents Generically:
 
-### Keep Separate (Domain-Specific):
-- `asterisk-expert-agent`
-- `vicidial-expert-agent`  
-- `webrtc-expert-system`
+#### For Cloud Services (any cloud, not just GCP):
+- Use `gcp-expert-agent` - It understands cloud patterns that apply to AWS, Azure, etc.
+
+#### For JavaScript/TypeScript (any framework):
+- Use `javascript-expert-agent` - It handles Node.js, Express, Next.js, etc.
+- Use `react-agent` - For any modern frontend (Vue, Angular concepts transfer)
+
+#### For Testing (any type):
+- Use `qa-test-orchestrator` - Handles unit, integration, E2E, performance
+- Use `qa-testing-agent` - Browser testing, chaos testing, user simulation
+
+#### For Databases (any type):
+- Use `database-engineer-agent` - PostgreSQL, MySQL, MongoDB, Redis, etc.
+
+#### For DevOps (any tools):
+- Use `devops-agent` - Docker, Kubernetes, CI/CD, monitoring, any deployment
 
 ---
 
-## 📊 Final Simplified Structure
+## 📊 Current Production Structure (DO NOT CHANGE)
 
 ```
 agents/

@@ -1,385 +1,156 @@
-# Claude Code Agents Repository
+# Claude Code AI Agents Collection
 
-A centralized repository for managing and synchronizing Claude/Anthropic agent prompts across multiple instances.
+## Overview
+A comprehensive collection of specialized AI agents for Claude Code's Task tool subagent system. These agents provide expert assistance across various domains including development, infrastructure, databases, and specialized technologies.
 
 **Repository**: https://github.com/datascore/claude_code_agents
 
-## 📦 Repository Contents
-
-This repository contains specialized agent prompts for various domains:
-
-### Development Agents
-- **react-agent** - React/TypeScript specialist
-- **go-agent** - Go language expert
-- **php-agent** - PHP development specialist
-- **javascript-expert-agent** - JavaScript/Node.js expert
-- **api-design-agent** - API architecture and design
-
-### Infrastructure & Operations
-- **devops-agent** - DevOps and infrastructure automation
-- **database-engineer-agent** - Database architecture and optimization
-- **gcp-expert-agent** - Google Cloud Platform specialist
-
-### Communication Systems
-- **asterisk-expert-agent** - Asterisk PBX/telephony specialist
-- **vicidial-expert-agent** - VICIdial call center platform expert
-- **webrtc-expert-system** - WebRTC real-time communications architect
-
-### Management
-- **pr-manager-agent** - Pull request and code review management
-
 ## 🚀 Quick Start
 
-### Getting the Agents on a New Machine
-
-#### Option 1: Clone with Git (Recommended)
+### Installation
 ```bash
-# Using HTTPS
-git clone https://github.com/datascore/claude_code_agents.git ~/agents
+# Clone the repository
+git clone https://github.com/datascore/claude_code_agents.git
+cd claude_code_agents
 
-# OR using SSH (if you have SSH keys set up)
-git clone git@github.com:datascore/claude_code_agents.git ~/agents
-
-cd ~/agents
+# Sync agents to Claude Code
+./sync-agents.sh
 ```
 
-#### Option 2: Using Sync Script
-```bash
-# Download the sync script
-curl -O https://raw.githubusercontent.com/datascore/claude_code_agents/main/sync-agents.sh
-chmod +x sync-agents.sh
+## 📋 Available Agents
 
-# Set environment variables
-export AGENT_REPO_URL='https://github.com/datascore/claude_code_agents.git'
-export AGENTS_DIR="$HOME/agents"
+After syncing, these specialized agents are available in Claude Code:
 
-# Run initial sync
-./sync-agents.sh --sync
-```
+### Core Development
+- **`go-specialist`** - Go language expertise, microservices, backend systems
+- **`react-specialist`** - React, TypeScript, frontend development
+- **`javascript-expert-agent`** - JavaScript/Node.js expert
+- **`php-agent`** - PHP development specialist
 
-### Keeping Your Local Copy Updated
+### Infrastructure & DevOps
+- **`devops-infrastructure-specialist`** - CI/CD, Docker, Kubernetes, automation
+- **`database-architect`** - Database design, optimization, migrations
+- **`gcp-cloud-architect`** - Google Cloud Platform services and architecture
 
-```bash
-# Manual update
-cd ~/agents
-git pull origin main
+### API & Architecture
+- **`api-design-architect`** - REST, GraphQL, API design patterns
+- **`project-comprehension-agent`** - Technical architecture and SDD creation
 
-# OR use the sync script
-./sync-agents.sh --sync
+### Quality & Testing
+- **`qa-test-orchestrator`** - Test planning, automation, quality assurance
+- **`code-quality-auditor`** - Code quality, testing, maintainability
+- **`code-review-auditor`** - Code review, best practices, security audit
 
-# Set up automatic hourly updates (macOS)
-./sync-agents.sh --auto
-```
+### Workflow Management
+- **`pr-lifecycle-manager`** - Pull request and Git workflow management
 
-## 🔄 Synchronization Methods
+### Specialized Technologies
+- **`asterisk-expert-agent`** - Asterisk PBX and telephony systems
+- **`vicidial-expert-agent`** - ViciDial call center platform
+- **`webrtc-expert-system`** - WebRTC real-time communications
 
-### Method 1: Bash Script (Recommended for automation)
+## 💻 Usage in Claude Code
 
-The `sync-agents.sh` script provides robust synchronization with backup capabilities.
-
-**Basic usage:**
-```bash
-# Sync with remote repository
-./sync-agents.sh --sync
-
-# Check status
-./sync-agents.sh --status
-
-# Create backup
-./sync-agents.sh --backup
-
-# Set up automatic hourly sync (macOS)
-./sync-agents.sh --auto
-```
-
-**Features:**
-- Automatic backup before sync
-- Stashes local changes
-- Colored output for better readability
-- Automatic sync via launchd (macOS)
-- Keeps last 5 backups
-
-### Method 2: Python Module (Recommended for programmatic access)
-
-The `sync_agents.py` module provides a Python API for managing agents.
-
-**Command-line usage:**
-```bash
-# Sync repository
-python3 sync_agents.py --sync
-
-# Force sync (overrides local changes)
-python3 sync_agents.py --sync --force
-
-# Check status
-python3 sync_agents.py --status
-
-# List all agents
-python3 sync_agents.py --list
-
-# Get specific agent content
-python3 sync_agents.py --get react-agent
-```
-
-**Python API usage:**
+### Using with Task Tool
 ```python
-from sync_agents import AgentSync
-
-# Initialize
-sync = AgentSync()
-
-# Check for updates
-if sync.check_for_updates():
-    # Sync with remote
-    success, changed_files = sync.sync()
-    print(f"Updated {len(changed_files)} files")
-
-# List available agents
-agents = sync.list_agents()
-for agent in agents:
-    print(f"{agent['name']}: {agent['role']}")
-
-# Get specific agent content
-react_prompt = sync.get_agent('react-agent')
+# Use specialized agents as subagents
+Task(subagent_type: 'go-specialist', task: 'Review this Go code and suggest improvements')
+Task(subagent_type: 'database-architect', task: 'Design a scalable database schema for user management')
+Task(subagent_type: 'devops-infrastructure-specialist', task: 'Create a CI/CD pipeline with GitHub Actions')
 ```
 
-### Method 3: Git Commands (Manual)
+### Examples by Domain
 
-For manual control:
-```bash
-# Pull latest changes
-cd ~/agents
-git pull origin main
-
-# Check status
-git status
-
-# Push local changes
-git add .
-git commit -m "Update agent prompts"
-git push origin main
-```
-
-## 🤖 Integration with Claude Instances
-
-### For Claude Desktop/Web
-
-1. **Manual sync before starting**:
-```bash
-~/agents/sync-agents.sh --sync
-```
-
-2. **Copy agent content**:
-```bash
-# View agent content
-cat ~/agents/react-agent.md | pbcopy  # Copies to clipboard on macOS
-```
-
-### For Automated Systems
-
-1. **Environment setup**:
+#### Backend Development
 ```python
-import os
-import sys
-sys.path.append(os.path.expanduser('~/agents'))
-from sync_agents import AgentSync
-
-# Auto-sync on startup
-sync = AgentSync()
-sync.sync()
-
-# Load specific agent
-agent_content = sync.get_agent('api-design-agent')
+Task(subagent_type: 'go-specialist', task: 'Implement a REST API with proper error handling')
+Task(subagent_type: 'api-design-architect', task: 'Design RESTful endpoints for a blog platform')
 ```
 
-2. **Scheduled sync** (crontab):
+#### Frontend Development
+```python
+Task(subagent_type: 'react-specialist', task: 'Create a responsive dashboard component')
+Task(subagent_type: 'javascript-expert-agent', task: 'Optimize this JavaScript code for performance')
+```
+
+#### Infrastructure
+```python
+Task(subagent_type: 'devops-infrastructure-specialist', task: 'Set up Docker containers for microservices')
+Task(subagent_type: 'gcp-cloud-architect', task: 'Design a scalable GCP architecture')
+```
+
+#### Database
+```python
+Task(subagent_type: 'database-architect', task: 'Optimize this PostgreSQL query')
+Task(subagent_type: 'database-architect', task: 'Design a migration strategy from MySQL to PostgreSQL')
+```
+
+#### Quality Assurance
+```python
+Task(subagent_type: 'qa-test-orchestrator', task: 'Create an E2E testing strategy')
+Task(subagent_type: 'code-review-auditor', task: 'Review this code for security vulnerabilities')
+```
+
+## 🔄 Keeping Agents Updated
+
+### Manual Update
 ```bash
-# Add to crontab (crontab -e)
-0 * * * * /Users/datascore/agents/sync-agents.sh --sync
+cd claude_code_agents
+git pull origin main
+./sync-agents.sh
 ```
 
-## 📁 Directory Structure
+### Automatic Updates (Optional)
+```bash
+# Install background sync service (macOS)
+./agent-service-control.sh install
 
-```
-agents/
-├── README.md                    # This file
-├── sync-agents.sh              # Bash sync script
-├── sync_agents.py              # Python sync module
-├── .gitignore                  # Git ignore rules
-├── .github/                    # GitHub configuration
-│   ├── workflows/              # GitHub Actions workflows
-│   │   ├── pr-validation.yml   # PR validation and checks
-│   │   ├── automated-review.yml # Automated code review
-│   │   ├── pr-metrics.yml      # PR metrics tracking
-│   │   └── deploy-notify.yml   # Deployment notifications
-│   ├── ISSUE_TEMPLATE/         # Issue templates
-│   │   ├── bug_report.md       # Bug report template
-│   │   └── feature_request.md  # Feature request template
-│   ├── pull_request_template.md # PR template
-│   └── CODEOWNERS              # Code ownership rules
-├── .git/                       # Git repository
-├── .backups/                   # Local backups (git-ignored)
-├── .sync.log                   # Sync history (git-ignored)
-└── *.md                        # Agent prompt files
+# Check service status
+./agent-service-control.sh status
+
+# View sync logs
+./agent-service-control.sh logs
 ```
 
-## 🔐 Security & Access Control
+## 📁 Agent Location
 
-### Repository Access Model
+Agents are synced to: `~/.config/claude/agents/`
 
-**This is a PUBLIC repository with restricted write access:**
-- ✅ **Everyone can**: View, clone, fork, and use the agents
-- ❌ **Only datascore can**: Push changes, merge PRs, modify branches
-- 📝 **Others can**: Submit pull requests for review
-
-### Branch Protection
-
-The `main` branch is protected:
-- Only `datascore` can push directly
-- Force pushes are disabled
-- Branch deletion is protected
-- All changes from others must go through pull requests
-
-### For Contributors
-
-If you want to suggest improvements:
-1. Fork the repository
-2. Make changes in your fork
-3. Submit a pull request
-4. Wait for review and approval
-
-### Security Considerations
-
-1. **Public Repository**: This repository is intentionally public for sharing
-2. **Access Tokens**: Contributors should use personal access tokens
-3. **Environment Variables**: Don't commit sensitive data
-4. **Backup Strategy**: Local backups are kept in `.backups/` (git-ignored)
+The sync script automatically:
+- Maps agent names to Claude Code expected format
+- Copies agents to the correct location
+- Ensures compatibility with Task tool
 
 ## 🛠️ Troubleshooting
 
-### Common Issues
+### Agents Not Available in Task Tool
+1. Run `./sync-agents.sh` to ensure agents are synced
+2. Verify agents exist in `~/.config/claude/agents/`
+3. Check that agent names match Claude Code format (e.g., `go-specialist`, not `go-agent`)
 
-**1. Permission denied when pushing:**
+### Sync Issues
 ```bash
-# Set up SSH key or use personal access token
-git remote set-url origin https://YOUR_TOKEN@github.com/USERNAME/REPO.git
+# Check current status
+ls ~/.config/claude/agents/
+
+# Force resync
+rm -rf ~/.config/claude/agents/*
+./sync-agents.sh
 ```
-
-**2. Merge conflicts:**
-```bash
-# The sync script automatically stashes local changes
-# To manually resolve:
-git stash
-git pull origin main
-git stash pop
-# Resolve any conflicts, then commit
-```
-
-**3. Auto-sync not working (macOS):**
-```bash
-# Check launchd status
-launchctl list | grep claude.agents
-
-# Reload the service
-launchctl unload ~/Library/LaunchAgents/com.claude.agents.sync.plist
-launchctl load ~/Library/LaunchAgents/com.claude.agents.sync.plist
-```
-
-## 📝 Best Practices
-
-1. **Version Control**: Commit changes with descriptive messages
-2. **Testing**: Test agent prompts locally before pushing
-3. **Documentation**: Keep agent descriptions updated
-4. **Backup**: Regular backups are automatic, but manual backups before major changes are recommended
-5. **Review**: Review changes before syncing to production instances
-
-## 🔄 Workflow Example
-
-### Daily Workflow
-```bash
-# Morning: Pull latest updates
-cd ~/agents
-./sync-agents.sh --sync
-
-# Work with agents...
-# Make changes to prompts...
-
-# Evening: Push your changes
-git add .
-git commit -m "Improve React agent error handling patterns"
-git push origin main
-```
-
-### Team Workflow
-1. Create feature branches for major prompt updates
-2. Use pull requests for review
-3. Test prompts in development before merging to main
-4. Auto-sync production instances from main branch
-
-## 📚 Additional Resources
-
-- [Claude Documentation](https://docs.anthropic.com)
-- [Git Documentation](https://git-scm.com/doc)
-- [GitHub CLI](https://cli.github.com/) - For advanced automation
 
 ## 🤝 Contributing
 
-### Pull Request Process
-
-1. **Create a feature branch**:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-2. **Make your changes** and commit:
-   ```bash
-   git add .
-   git commit -m "Description of changes"
-   ```
-
-3. **Push to GitHub**:
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-
-4. **Create a Pull Request**:
-   - Go to https://github.com/datascore/claude_code_agents
-   - Click "New pull request"
-   - Select your branch
-   - Fill out the PR template
-   - Submit for review
-
-### PR Guidelines
-
-- Link related issues in PR description
-- Keep PRs focused and under 500 lines
-- Ensure all checklist items are addressed
-- Wait for automated checks to pass
-- Address review feedback promptly
-
-### GitHub Actions & Automation
-
-This repository includes automated workflows:
-
-- **PR Validation**: Automatically checks PR size, linked issues, and template compliance
-- **Automated Review**: Runs Black formatting checks and spell checking
-- **PR Metrics**: Tracks metrics and generates weekly reports
-- **Auto-labeling**: PRs are automatically labeled based on content
-
-### Code Standards
-
-1. Python code must be formatted with Black
-2. Keep prompts well-structured and documented
-3. Follow the existing format for new agents
-4. Test thoroughly before pushing
-5. Update this README when adding new features
+This is a public repository with restricted write access:
+- View and fork: Anyone
+- Direct push: Only @datascore
+- Contributions: Submit pull requests for review
 
 ## 📄 License
 
-[Your license here]
+MIT License - See LICENSE file for details
 
----
+## 🔗 Links
 
-**Repository**: https://github.com/datascore/claude_code_agents  
-**Maintainer**: datascore  
-**Last Updated**: 2025-01-21
+- **Repository**: https://github.com/datascore/claude_code_agents
+- **Issues**: https://github.com/datascore/claude_code_agents/issues
+- **Pull Requests**: https://github.com/datascore/claude_code_agents/pulls
