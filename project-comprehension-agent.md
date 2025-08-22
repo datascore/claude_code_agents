@@ -425,103 +425,191 @@ If issues occur:
 
 ## Dynamic Agent Discovery & Orchestration
 
-### Agent Discovery & Orchestration
+### Claude Desktop Agent Discovery & Orchestration
 
 ```python
-class HybridAgentDiscovery:
+class ClaudeDesktopAgentDiscovery:
     """
-    Discover and orchestrate both Claude Code built-in agents and custom agents
+    Discover and orchestrate Claude Desktop agents from /agents command
     """
     
     def __init__(self):
-        self.custom_agents_dir = "~/.config/claude/agents/"
+        self.agent_locations = {
+            'user_agents': '~/.claude/agents/',      # User-level agents (global)
+            'project_agents': '.claude/agents/',     # Project-specific agents
+            'builtin_agents': 'always available'     # Claude's built-in agents
+        }
         self.available_agents = {
-            'claude_builtin': {},
-            'custom': {}
+            'user': {},
+            'project': {},
+            'builtin': {}
         }
         
-    def get_claude_builtin_agents(self):
+    def get_user_agents(self):
         """
-        Map Claude Code's built-in Task tool agents to their capabilities
+        User agents from ~/.claude/agents/ - these are YOUR custom agents
+        Available globally across all projects
+        """
+        # These are the agents you've synced from your GitHub repo
+        return {
+            'database-architect': {
+                'model': 'opus',
+                'role': 'Database design, optimization, migrations',
+                'location': '~/.claude/agents/database-architect.md'
+            },
+            'devops-infrastructure-specialist': {
+                'model': 'sonnet',
+                'role': 'Infrastructure, Docker, Kubernetes, CI/CD',
+                'location': '~/.claude/agents/devops-infrastructure-specialist.md'
+            },
+            'qa-test-orchestrator': {
+                'model': 'sonnet',
+                'role': 'Test planning, automation, quality assurance',
+                'location': '~/.claude/agents/qa-test-orchestrator.md'
+            },
+            'gcp-cloud-architect': {
+                'model': 'sonnet',
+                'role': 'Google Cloud Platform services and architecture',
+                'location': '~/.claude/agents/gcp-cloud-architect.md'
+            },
+            'react-specialist': {
+                'model': 'sonnet',
+                'role': 'React, TypeScript, frontend development',
+                'location': '~/.claude/agents/react-specialist.md'
+            },
+            'go-specialist': {
+                'model': 'sonnet',
+                'role': 'Go language, microservices, backend systems',
+                'location': '~/.claude/agents/go-specialist.md'
+            },
+            'code-review-auditor': {
+                'model': 'sonnet',
+                'role': 'Code review, best practices, security audit',
+                'location': '~/.claude/agents/code-review-auditor.md'
+            },
+            'api-design-architect': {
+                'model': 'sonnet',
+                'role': 'REST, GraphQL, API design patterns',
+                'location': '~/.claude/agents/api-design-architect.md'
+            },
+            'code-quality-auditor': {
+                'model': 'sonnet',
+                'role': 'Code quality, testing, maintainability',
+                'location': '~/.claude/agents/code-quality-auditor.md'
+            },
+            # Additional custom agents from your repo
+            'vicidial-expert-agent': {
+                'model': 'sonnet',
+                'role': 'ViciDial configuration and management',
+                'location': '~/.claude/agents/vicidial-expert-agent.md'
+            },
+            'asterisk-expert-agent': {
+                'model': 'sonnet',
+                'role': 'Asterisk PBX and telephony',
+                'location': '~/.claude/agents/asterisk-expert-agent.md'
+            },
+            'webrtc-expert-system': {
+                'model': 'sonnet',
+                'role': 'WebRTC implementation and troubleshooting',
+                'location': '~/.claude/agents/webrtc-expert-system.md'
+            },
+            'project-comprehension-agent': {
+                'model': 'opus',
+                'role': 'Technical architecture and SDD creation',
+                'location': '~/.claude/agents/project-comprehension-agent.md'
+            }
+        }
+    
+    def get_project_agents(self, project_path=None):
+        """
+        Project-specific agents from .claude/agents/ in project root
+        """
+        # Example shows pr-lifecycle-manager in a specific project
+        if project_path:
+            return {
+                'pr-lifecycle-manager': {
+                    'model': 'sonnet',
+                    'role': 'Pull request management for this project',
+                    'location': f'{project_path}/.claude/agents/pr-lifecycle-manager.md'
+                }
+            }
+        return {}
+    
+    def get_builtin_agents(self):
+        """
+        Claude's built-in agents - always available
         """
         return {
             'general-purpose': {
+                'model': 'sonnet',
                 'role': 'General task execution and analysis',
-                'best_for': ['analysis', 'planning', 'documentation']
+                'always_available': True
             },
-            'database-architect': {
-                'role': 'Database design and optimization',
-                'best_for': ['schema design', 'queries', 'migrations']
+            'statusline-setup': {
+                'model': 'sonnet',
+                'role': 'Configure status line display',
+                'always_available': True
             },
-            'devops-infrastructure-specialist': {
-                'role': 'Infrastructure and deployment',
-                'best_for': ['docker', 'kubernetes', 'ci/cd', 'monitoring']
-            },
-            'qa-test-orchestrator': {
-                'role': 'Testing strategy and automation',
-                'best_for': ['test planning', 'e2e testing', 'quality assurance']
-            },
-            'gcp-cloud-architect': {
-                'role': 'Google Cloud Platform architecture',
-                'best_for': ['gcp services', 'cloud migration', 'scaling']
-            },
-            'react-specialist': {
-                'role': 'React and frontend development',
-                'best_for': ['react', 'ui components', 'frontend']
-            },
-            'go-specialist': {
-                'role': 'Go language development',
-                'best_for': ['golang', 'microservices', 'backend']
-            },
-            'api-design-architect': {
-                'role': 'API design and architecture',
-                'best_for': ['rest', 'graphql', 'api design']
-            },
-            'code-review-auditor': {
-                'role': 'Code review and quality audit',
-                'best_for': ['code review', 'best practices', 'refactoring']
-            },
-            'pr-lifecycle-manager': {
-                'role': 'Pull request and Git workflow management',
-                'best_for': ['git', 'pull requests', 'branching']
+            'output-style-setup': {
+                'model': 'sonnet',
+                'role': 'Configure output formatting',
+                'always_available': True
             }
         }
         
-    def discover_custom_agents(self):
+    def discover_all_agents(self, project_path=None):
         """
-        Discover custom agents in ~/.config/claude/agents/
+        Discover all available agents from Claude Desktop's /agents command
         """
         import os
-        import re
         from pathlib import Path
         
-        agents_path = Path.home() / '.config' / 'claude' / 'agents'
-        custom_agents = {}
+        # 1. User agents from ~/.claude/agents/
+        user_agents_path = Path.home() / '.claude' / 'agents'
+        if user_agents_path.exists():
+            self.available_agents['user'] = self.get_user_agents()
         
-        if agents_path.exists():
-            agent_files = [
-                f for f in agents_path.glob('*.md')
-                if f.name not in ['README.md', 'AGENT_CATALOG.md', 'REMOTE_SETUP.md']
-            ]
-            
-            for agent_file in agent_files:
-                agent_name = agent_file.stem
-                # Map our custom agents to their expertise
-                custom_agents[agent_name] = {
-                    'role': f'Custom specialist: {agent_name}',
-                    'location': str(agent_file),
-                    'type': 'custom'
-                }
-                
-        return custom_agents
-    
-    def discover_all_agents(self):
-        """
-        Get both Claude built-in and custom agents
-        """
-        self.available_agents['claude_builtin'] = self.get_claude_builtin_agents()
-        self.available_agents['custom'] = self.discover_custom_agents()
+        # 2. Project agents from .claude/agents/ in project root
+        if project_path:
+            project_agents_path = Path(project_path) / '.claude' / 'agents'
+            if project_agents_path.exists():
+                self.available_agents['project'] = self.get_project_agents(project_path)
+        
+        # 3. Built-in agents (always available)
+        self.available_agents['builtin'] = self.get_builtin_agents()
+        
         return self.available_agents
+    
+    def select_agent_for_task(self, task_description):
+        """
+        Select the best agent for a given task from available agents
+        """
+        task_lower = task_description.lower()
+        
+        # Check user agents first (most specialized)
+        for agent_name, agent_info in self.available_agents.get('user', {}).items():
+            if any(keyword in task_lower for keyword in agent_name.split('-')):
+                return {
+                    'agent': agent_name,
+                    'type': 'user',
+                    'reason': agent_info['role']
+                }
+        
+        # Check project agents
+        for agent_name, agent_info in self.available_agents.get('project', {}).items():
+            if any(keyword in task_lower for keyword in agent_name.split('-')):
+                return {
+                    'agent': agent_name,
+                    'type': 'project',
+                    'reason': agent_info['role']
+                }
+        
+        # Fall back to general-purpose
+        return {
+            'agent': 'general-purpose',
+            'type': 'builtin',
+            'reason': 'General task execution'
+        }
     
     def match_agents_to_sdd(self, sdd_content):
         """
