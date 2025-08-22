@@ -1,204 +1,82 @@
-# Claude Code AI Agents Collection
+# Claude Code Agents
 
-## Overview
-A comprehensive collection of specialized AI agents for Claude Code's Task tool subagent system. These agents provide expert assistance across various domains including development, infrastructure, databases, and specialized technologies.
+Specialized AI agents for Claude Code that provide expert assistance across various technical domains.
 
-**Repository**: https://github.com/datascore/claude_code_agents
+## Quick Setup
 
-## 🚀 Quick Start for Claude Code Servers
-
-### Complete Setup (Copy & Run)
 ```bash
-# 1. Clone the repository
+# Clone the repository
 git clone https://github.com/datascore/claude_code_agents.git ~/agents
 cd ~/agents
 
-# 2. Run the sync script (with proper YAML formatting)
-./sync-agents-simple.sh
-
-# 3. Install git hooks for automatic syncing
-./setup-git-hooks.sh
-
-# 4. (Optional) Install background sync service for auto-updates
-./agent-service-control.sh install
+# Sync agents to Claude Code
+./sync.sh
 ```
 
-**That's it!** Agents are now available in `~/.claude/agents/` with proper YAML frontmatter.
+That's it! The agents are now available in `~/.claude/agents/`
 
-## 📋 Available Agents
+## Available Agents (16 total)
 
-After syncing, these specialized agents are available in Claude Code:
+| Agent File | Claude Code Name | Expertise |
+|------------|-----------------|-----------|
+| api-design-agent | api-design-architect | REST, GraphQL, API design |
+| asterisk-expert-agent | asterisk-specialist | Asterisk telephony, VoIP |
+| database-engineer-agent | database-architect | Database design, SQL/NoSQL |
+| devops-agent | devops-infrastructure-specialist | CI/CD, Docker, Kubernetes |
+| gcp-expert-agent | gcp-cloud-architect | Google Cloud Platform |
+| go-agent | go-specialist | Go programming language |
+| javascript-expert-agent | javascript-specialist | JavaScript, Node.js |
+| php-agent | php-specialist | PHP development |
+| pr-manager-agent | pr-lifecycle-manager | Pull requests, code review |
+| project-comprehension-agent | project-comprehension-specialist | Codebase analysis |
+| qa-test-orchestrator | qa-test-orchestrator | Test automation, QA |
+| qa-testing-agent | code-quality-auditor | Code quality, testing |
+| qa-testing-agent | code-review-auditor | Code review (alias) |
+| react-agent | react-specialist | React, frontend |
+| vicidial-expert-agent | vicidial-specialist | ViciDial call center |
+| webrtc-expert-system | webrtc-expert-system | WebRTC, real-time comm |
 
-### Core Development
-- **`go-specialist`** - Go language expertise, microservices, backend systems
-- **`react-specialist`** - React, TypeScript, frontend development
-- **`javascript-expert-agent`** - JavaScript/Node.js expert
-- **`php-agent`** - PHP development specialist
+## Using Agents in Claude Code
 
-### Infrastructure & DevOps
-- **`devops-infrastructure-specialist`** - CI/CD, Docker, Kubernetes, automation
-- **`database-architect`** - Database design, optimization, migrations
-- **`gcp-cloud-architect`** - Google Cloud Platform services and architecture
-
-### API & Architecture
-- **`api-design-architect`** - REST, GraphQL, API design patterns
-- **`project-comprehension-agent`** - Technical architecture and SDD creation
-
-### Quality & Testing
-- **`qa-test-orchestrator`** - Test planning, automation, quality assurance
-- **`code-quality-auditor`** - Code quality, testing, maintainability
-- **`code-review-auditor`** - Code review, best practices, security audit
-
-### Workflow Management
-- **`pr-lifecycle-manager`** - Pull request and Git workflow management
-
-### Specialized Technologies
-- **`asterisk-expert-agent`** - Asterisk PBX and telephony systems
-- **`vicidial-expert-agent`** - ViciDial call center platform
-- **`webrtc-expert-system`** - WebRTC real-time communications
-
-## 💻 Usage in Claude Code
-
-### Using with Task Tool
 ```python
-# Use specialized agents as subagents
-Task(subagent_type: 'go-specialist', task: 'Review this Go code and suggest improvements')
-Task(subagent_type: 'database-architect', task: 'Design a scalable database schema for user management')
-Task(subagent_type: 'devops-infrastructure-specialist', task: 'Create a CI/CD pipeline with GitHub Actions')
+# In Claude Code, use the Task tool with the agent name:
+Task(subagent_type: 'go-specialist', task: 'Review this Go code')
+Task(subagent_type: 'database-architect', task: 'Optimize this query')
+Task(subagent_type: 'react-specialist', task: 'Create a React component')
 ```
 
-### Examples by Domain
+## Updating Agents
 
-#### Backend Development
-```python
-Task(subagent_type: 'go-specialist', task: 'Implement a REST API with proper error handling')
-Task(subagent_type: 'api-design-architect', task: 'Design RESTful endpoints for a blog platform')
-```
-
-#### Frontend Development
-```python
-Task(subagent_type: 'react-specialist', task: 'Create a responsive dashboard component')
-Task(subagent_type: 'javascript-expert-agent', task: 'Optimize this JavaScript code for performance')
-```
-
-#### Infrastructure
-```python
-Task(subagent_type: 'devops-infrastructure-specialist', task: 'Set up Docker containers for microservices')
-Task(subagent_type: 'gcp-cloud-architect', task: 'Design a scalable GCP architecture')
-```
-
-#### Database
-```python
-Task(subagent_type: 'database-architect', task: 'Optimize this PostgreSQL query')
-Task(subagent_type: 'database-architect', task: 'Design a migration strategy from MySQL to PostgreSQL')
-```
-
-#### Quality Assurance
-```python
-Task(subagent_type: 'qa-test-orchestrator', task: 'Create an E2E testing strategy')
-Task(subagent_type: 'code-review-auditor', task: 'Review this code for security vulnerabilities')
-```
-
-## 🔄 Keeping Agents Updated
-
-### Three Ways to Stay Synchronized
-
-#### 1. Automatic via Git Hooks (Recommended)
-Once installed, agents auto-sync when you:
-- Run `git pull` (post-merge hook)
-- Commit agent changes (post-commit hook)
-
-#### 2. Background Service (Set and Forget)
-```bash
-# Install background sync service
-./agent-service-control.sh install
-
-# Service automatically:
-# - Pulls from GitHub every 5 minutes
-# - Syncs agents with proper YAML format
-# - Logs activity to ~/.claude/agent-sync.log
-```
-
-#### 3. Manual Update
 ```bash
 cd ~/agents
-git pull origin main
-# Git hooks auto-sync, or manually run:
-./sync-agents-simple.sh
+git pull
+./sync.sh
 ```
 
-## 📁 Technical Details
+## Troubleshooting
 
-### Agent Location & Format
-Agents are synced to: `~/.claude/agents/` (Personal agents directory)
+If the sync script hangs, you can manually copy agents:
 
-Each agent includes required YAML frontmatter:
+```bash
+# Manual copy example (for one agent)
+mkdir -p ~/.claude/agents
+cp go-agent.md ~/.claude/agents/go-specialist.md
+```
+
+Then manually add YAML frontmatter to the top of each file:
 ```yaml
 ---
-name: "agent-name"
-description: "Agent description"
+name: "go-specialist"
+description: "Go programming specialist"
 version: "1.0"
-tools: ["*"]  # All agents have access to all tools
+tools: ["*"]
 ---
 ```
 
-### What the Sync Script Does
-- ✅ Auto-discovers all agent files
-- ✅ Maps names to Claude Code format (e.g., `go-agent` → `go-specialist`)
-- ✅ Adds proper YAML frontmatter
-- ✅ Validates format compliance
-- ✅ Generates agent-registry.json for tracking
+## Repository
 
-## 🛠️ Troubleshooting
+https://github.com/datascore/claude_code_agents
 
-### Verify Installation
-```bash
-# Check agents are synced
-ls -la ~/.claude/agents/
+## License
 
-# Verify YAML frontmatter
-head -6 ~/.claude/agents/go-specialist.md
-
-# Check git hooks
-ls -la .git/hooks/post-*
-
-# Service status (if installed)
-./agent-service-control.sh status
-```
-
-### Common Issues
-
-#### Agents Not Available in Task Tool
-```bash
-# Run the sync script
-./sync-agents-simple.sh
-```
-
-#### Git Hooks Not Working
-```bash
-# Reinstall hooks
-./setup-git-hooks.sh
-```
-
-#### Force Complete Resync
-```bash
-rm -rf ~/.claude/agents/*
-./sync-agents-simple.sh
-```
-
-## 🤝 Contributing
-
-This is a public repository with restricted write access:
-- View and fork: Anyone
-- Direct push: Only @datascore
-- Contributions: Submit pull requests for review
-
-## 📄 License
-
-MIT License - See LICENSE file for details
-
-## 🔗 Links
-
-- **Repository**: https://github.com/datascore/claude_code_agents
-- **Issues**: https://github.com/datascore/claude_code_agents/issues
-- **Pull Requests**: https://github.com/datascore/claude_code_agents/pulls
+MIT
