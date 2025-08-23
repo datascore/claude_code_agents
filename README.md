@@ -76,7 +76,7 @@ If the sync script hangs, you can manually copy agents:
 
 ```bash
 # Manual copy example (for one agent)
-mkdir -p ~/.claude/agents
+# Note: ~/.claude/agents/ should already exist from Claude Code installation
 cp go-agent.md ~/.claude/agents/go-agent.md
 ```
 

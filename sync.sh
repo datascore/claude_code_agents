@@ -8,8 +8,12 @@ echo "   Location: ~/.claude/agents/"
 echo "   Scope: Available across ALL projects"
 echo "======================================"
 
-# Create target directory
-mkdir -p ~/.claude/agents
+# Check if Claude Code agents directory exists
+if [ ! -d ~/.claude/agents ]; then
+    echo "❌ Error: ~/.claude/agents directory does not exist!"
+    echo "   Please ensure Claude Code is properly installed first."
+    exit 1
+fi
 
 # Clean old files
 rm -f ~/.claude/agents/*.md 2>/dev/null
