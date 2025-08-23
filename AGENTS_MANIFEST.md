@@ -8,7 +8,7 @@ This file explicitly identifies which files in this repository are AGENTS vs DOC
 - DO NOT treat documentation files as agents
 - Use this manifest as the source of truth for agent identification
 
-## 🤖 AGENT FILES (15 total)
+## 🤖 AGENT FILES (16 total)
 These files contain agent instructions and should be synced to ~/.claude/agents/:
 
 1. `api-design-agent.md`
@@ -24,8 +24,9 @@ These files contain agent instructions and should be synced to ~/.claude/agents/
 11. `qa-test-orchestrator.md`
 12. `qa-testing-agent.md`
 13. `react-agent.md`
-14. `vicidial-expert-agent.md`
-15. `webrtc-expert-system.md`
+14. `typescript-specialist.md`
+15. `vicidial-expert-agent.md`
+16. `webrtc-expert-system.md`
 
 ## 📄 DOCUMENTATION FILES (NOT AGENTS)
 These files are documentation and should NOT be treated as agents:
@@ -55,6 +56,6 @@ This script reads the agent files listed above and copies them to `~/.claude/age
 - All agents get `tools: ["*"]` access
 
 ---
-Last Updated: 2024-08-22
-Total Agents: 15
-Total Files After Sync: 15 (agents keep original filenames)
+Last Updated: 2025-08-23
+Total Agents: 16
+Total Files After Sync: 16 (agents keep original filenames)

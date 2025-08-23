@@ -17,7 +17,7 @@ cd ~/agents
 
 That's it! The agents are now available in `~/.claude/agents/`
 
-## Available Agents (15 agents)
+## Available Agents (16 agents)
 
 | Agent File | Expertise |
 |------------|------------|
@@ -34,6 +34,7 @@ That's it! The agents are now available in `~/.claude/agents/`
 | qa-test-orchestrator.md | Test automation, QA |
 | qa-testing-agent.md | Code quality, testing |
 | react-agent.md | React, frontend |
+| typescript-specialist.md | TypeScript, type systems |
 | vicidial-expert-agent.md | ViciDial call center |
 | webrtc-expert-system.md | WebRTC, real-time comm |
 

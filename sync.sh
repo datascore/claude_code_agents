@@ -22,10 +22,9 @@ sync_agent() {
     if [ -f "$filename" ]; then
         (
             echo "---"
-            echo "name: \"$basename\""
-            echo "description: \"$description\""
-            echo "version: \"1.0\""
-            echo "tools: [\"*\"]"
+            echo "name: $basename"
+            echo "description: $description"
+            echo "tools: Read, Write, Edit, Bash, Grep, Find, SearchCodebase, CreateFile, RunCommand, Task"
             echo "---"
             echo ""
             cat "$filename"
@@ -48,6 +47,7 @@ sync_agent project-comprehension-agent.md "Codebase analysis and project underst
 sync_agent qa-test-orchestrator.md "Test automation, QA strategies, and testing frameworks"
 sync_agent qa-testing-agent.md "Code quality assurance and testing best practices"
 sync_agent react-agent.md "React, frontend development, and component architecture"
+sync_agent typescript-specialist.md "TypeScript expert for type systems, advanced patterns, and migrations"
 sync_agent vicidial-expert-agent.md "ViciDial call center platform specialist"
 sync_agent webrtc-expert-system.md "WebRTC, real-time communication, and media streaming"
 
