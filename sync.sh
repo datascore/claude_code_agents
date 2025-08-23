@@ -1,8 +1,11 @@
 #!/bin/bash
 # Ultra-simple sync script - copy files with YAML headers
 # KEEPS ORIGINAL FILENAMES - NO RENAMING
+# SYNCS TO USER-LEVEL ONLY (~/.claude/agents/) - NOT PROJECT-LEVEL
 
-echo "🔄 Syncing agents to ~/.claude/agents/"
+echo "🔄 Syncing agents to USER-LEVEL directory"
+echo "   Location: ~/.claude/agents/"
+echo "   Scope: Available across ALL projects"
 echo "======================================"
 
 # Create target directory

@@ -15,7 +15,7 @@ cd ~/agents
 ./sync.sh
 ```
 
-That's it! The agents are now available in `~/.claude/agents/`
+That's it! The agents are now available globally in `~/.claude/agents/` (user-level)
 
 ## Available Agents (16 agents)
 
@@ -37,6 +37,13 @@ That's it! The agents are now available in `~/.claude/agents/`
 | typescript-specialist.md | TypeScript, type systems |
 | vicidial-expert-agent.md | ViciDial call center |
 | webrtc-expert-system.md | WebRTC, real-time comm |
+
+## Agent Installation
+
+Agents are installed to the **user-level directory only**:
+- Location: `~/.claude/agents/`
+- Scope: Available across ALL your projects
+- Not installed to project-level `.claude/agents/` directories
 
 ## Agent Format
 
