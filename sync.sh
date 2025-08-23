@@ -20,14 +20,21 @@ sync_agent() {
     local basename="${filename%.md}"
     
     if [ -f "$filename" ]; then
+        # Extract the "You are" line from the ## Role section
+        role_line=$(grep -A 1 "^## Role" "$filename" | tail -1)
+        
+        # Create the properly formatted agent file
         (
             echo "---"
             echo "name: $basename"
             echo "description: $description"
             echo "tools: Read, Write, Edit, Bash, Grep, Find, SearchCodebase, CreateFile, RunCommand, Task"
             echo "---"
+            # Output the role line directly after frontmatter
+            echo "$role_line"
             echo ""
-            cat "$filename"
+            # Skip the first few lines (title and role section) and output the rest
+            awk '/^## Core Expertise/,EOF' "$filename"
         ) > ~/.claude/agents/$filename
         echo "   ✓ $basename - $description"
     fi
