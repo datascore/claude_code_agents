@@ -38,6 +38,13 @@ That's it! The agents are now available in `~/.claude/agents/`
 | vicidial-expert-agent.md | ViciDial call center |
 | webrtc-expert-system.md | WebRTC, real-time comm |
 
+## Agent Format
+
+All agents follow the Claude Code subagent format:
+- YAML frontmatter with `name`, `description`, and `tools`
+- Immediately followed by "You are..." role description
+- Detailed expertise and patterns in the body
+
 ## Using Agents in Claude Code
 
 ```python
@@ -45,6 +52,7 @@ That's it! The agents are now available in `~/.claude/agents/`
 Task(subagent_type: 'go-agent', task: 'Review this Go code')
 Task(subagent_type: 'database-engineer-agent', task: 'Optimize this query')
 Task(subagent_type: 'react-agent', task: 'Create a React component')
+Task(subagent_type: 'typescript-specialist', task: 'Add TypeScript to my project')
 ```
 
 ## Updating Agents
@@ -68,11 +76,11 @@ cp go-agent.md ~/.claude/agents/go-agent.md
 Then manually add YAML frontmatter to the top of each file:
 ```yaml
 ---
-name: "go-agent"
-description: "Go programming specialist"
-version: "1.0"
-tools: ["*"]
+name: go-agent
+description: Go programming specialist
+tools: Read, Write, Edit, Bash, Grep, Find, SearchCodebase, CreateFile, RunCommand, Task
 ---
+You are [agent role description here]...
 ```
 
 ## Repository
